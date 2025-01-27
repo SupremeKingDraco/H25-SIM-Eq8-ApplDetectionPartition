@@ -1,0 +1,1 @@
+# H25-SIM-Eq8-ApplDetectionPartition
