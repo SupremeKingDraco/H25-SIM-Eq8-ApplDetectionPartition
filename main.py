@@ -1,3 +1,6 @@
+# Algo V1
+#
+#
 # import cv2
 # import numpy as np
 # from music21 import *
@@ -227,7 +230,7 @@
 
 
 
-
+# Algo v2
 
 import cv2
 import numpy as np
