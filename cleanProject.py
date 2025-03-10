@@ -1,14 +1,13 @@
-# Projet
-
 import cv2
 import numpy as np
 from music21 import *
 
-# Set up video musique
+# Set up video musique river flows in you
 nomChanson = r"C:\Users\crina\Downloads\Yiruma - River Flows In You (Intermediate Piano Tutorial).mp4"
 notes = ["C#", "D", "E", "F#", "G#", "A", "B"]
 gamme = 1
-bpmChanson = 264
+vraiBpmChanson = 66
+bpmChanson = vraiBpmChanson*16
 bpsChanson = bpmChanson / 60
 
 # Set up detection
@@ -16,6 +15,53 @@ pixelsSelectionnes = [(10, 291), (36, 251), (51, 293), (65, 293), (92, 242), (11
 arrayPixel = []
 frameCorrection = -1
 tolerence = 100
+commencement = 6
+
+# # Set up video musique fairytale
+# nomChanson = r"C:\Users\crina\Downloads\Fairy Tail - Main Theme (Piano Version).mp4"
+# notes = ["C", "D", "E", "F", "G", "A", "B-"]
+# gamme = 1
+# vraiBpmChanson = 120
+# bpmChanson = vraiBpmChanson*16
+# bpsChanson = bpmChanson / 60
+#
+# # Set up detection
+# pixelsSelectionnes = [(32, 278), (42, 275), (57, 272), (70, 273), (79, 232), (93, 231), (103, 232), (114, 235), (129, 236), (144, 272), (157, 271), (169, 274), (181, 275), (192, 238), (206, 279), (218, 278), (231, 279), (244, 279), (256, 277), (270, 275), (280, 239), (293, 280), (307, 278), (321, 278), (332, 277), (344, 270), (357, 272), (367, 241), (379, 245), (394, 239), (408, 245), (420, 273), (432, 276), (446, 275), (454, 242), (468, 276), (480, 276), (495, 277), (505, 277), (518, 278), (528, 277), (540, 242), (553, 276), (565, 277), (578, 277), (588, 276), (601, 275), (611, 277), (623, 235)]
+# arrayPixel = []
+# frameCorrection = -1
+# tolerence = 100
+# commencement = 0
+
+
+# # Set up video Imir
+# nomChanson = r"C:\Users\crina\Downloads\Attack On Titan OST - Call of Silence (Ymir's Theme) (1).mp4"
+# notes = ["C#", "D", "E", "F#", "G#", "A", "B"]
+# gamme = 1
+# vraiBpmChanson = 48
+# bpmChanson = vraiBpmChanson*16
+# bpsChanson = bpmChanson / 60
+#
+# # Set up detection
+# pixelsSelectionnes = [(32, 221), (42, 277), (55, 276), (68, 229), (82, 230), (91, 280), (103, 279), (117, 230), (129, 227), (143, 235), (155, 231), (169, 231), (179, 164), (194, 235),(204, 233), (215, 253), (227, 277), (241, 234), (255, 234), (264, 277), (277, 276), (293, 238), (302, 277), (315, 277), (330, 232), (344, 232), (353, 227), (369, 228), (379, 197), (390, 224), (404, 277), (416, 232), (430, 232), (442, 277), (452, 277), (467, 236), (476, 273), (490, 275), (503, 230), (517, 233), (527, 276), (539, 273), (552, 234), (564, 276), (574, 276), (588, 231), (602, 233), (612, 276), (623, 273)]
+# arrayPixel = []
+# frameCorrection = -1
+# tolerence = 100
+# commencement = 0
+
+# # Set up video Faded
+# nomChanson = r"C:\Users\crina\Downloads\Alan Walker - Faded (Intermediate Piano Tutorial).mp4"
+# notes = ["C-", "D-", "E-", "F", "G-", "A-", "B-"]
+# gamme = 1
+# vraiBpmChanson = 90
+# bpmChanson = vraiBpmChanson*16
+# bpsChanson = bpmChanson / 60
+#
+# # Set up detection
+# pixelsSelectionnes = [(22, 286), (43, 256), (61, 254), (83, 293), (87, 257), (104, 257), (122, 257), (127, 293), (148, 261), (165, 264), (188, 289), (190, 265), (209, 265), (227, 265), (232, 293), (250, 264), (269, 265), (291, 289), (296, 258), (314, 253), (331, 256), (336, 289), (357, 251), (375, 253), (396, 296), (400, 262), (418, 263), (434, 264), (438, 291), (460, 250), (478, 254), (498, 294), (505, 264), (521, 263), (539, 264), (545, 294), (564, 253), (583, 253), (604, 296), (609, 256), (625, 257)]
+# arrayPixel = []
+# frameCorrection = -1
+# tolerence = 100
+# commencement = 0
 
 class Pixel:
     def __init__(self, coordonnee, valeurInitiale):
@@ -47,10 +93,10 @@ def selectionnerPixelAuto():
 
 def changerY():
     global pixelsSelectionnes
-    for pixel in arrayPixel:
-        x, y = pixel.coordonnee
+    for i in range(len(pixelsSelectionnes)):
+        x, y = pixelsSelectionnes[i]
         y = 1
-        pixel.coordonnee = (x, y)
+        pixelsSelectionnes[i] = (x, y)
 
 # Charger la vidéo
 cap = cv2.VideoCapture(nomChanson)
@@ -65,7 +111,7 @@ print(f"Taux de rafraîchissement de la vidéo : {tauxFps} FPS")
 
 # Lire les frames jusqu'à la frame cible
 compteurFrame = 0
-frameCible = 70
+frameCible = 140
 frame = None
 
 while compteurFrame < frameCible:
@@ -81,6 +127,7 @@ if len(pixelsSelectionnes) > 0:
 
 # # Vérifier si des pixels ont été sélectionnés précédemment
 #     Dessiner des cercles autour des pixels précédemment sélectionnés
+# print(pixelsSelectionnes)
 # for pixel in pixelsSelectionnes:
 #     cv2.circle(frame, pixel, 2, (0, 255, 0), -1)
 
@@ -104,7 +151,7 @@ valeursPrecedentes = {pixel: pixel.valeurInitiale for pixel in arrayPixel}
 
 def pixelToNote():
     global arrayPixel, gamme
-    compteur = 6
+    compteur = commencement
     for pixel in arrayPixel:
         nomNote = notes[compteur]
         pixel.note = nomNote + str(gamme)
@@ -212,6 +259,7 @@ for pixel in arrayPixel:
 
 frameCorrectionSpecialiser = frameCorrection
 
+
 for pixel in arrayPixel:
     noteApuuyerList.clear()
     compteur = 0
@@ -226,7 +274,7 @@ for pixel in arrayPixel:
             battement = noteEnSecondes * bpsChanson
             valeurProche = trouverValeurProche(battement)
             instanceNote = note.Note(pixel.note)
-            instanceNote.quarterLength = valeurProche/2
+            instanceNote.quarterLength = valeurProche/16
             decalageEnSecondes = (noteApuuyerList[0] - frameCorrection) / tauxFps
             decalageBattementEnSecondes = decalageEnSecondes * bpsChanson
             valeurProcheDecalageEnSecondes = trouverValeurProche(decalageBattementEnSecondes)
@@ -243,12 +291,12 @@ for pixel in arrayPixel:
             # print("frame correction = ")
             # print(frameCorrectionSpecialiser)
             # frameCorrectionSpecialiser = (frameCorrection + (fluxMusical.quarterLength / bpsChanson * tauxFps)) - noteApuuyerList[2]
-            fluxMusical.coreInsert(valeurProcheDecalageEnSecondes/2, instanceNote)
+            fluxMusical.coreInsert(valeurProcheDecalageEnSecondes/16, instanceNote)
             noteApuuyerList.clear()
 
         compteur += 1
 
-fluxMusical.insert(0, tempo.MetronomeMark(132))
+fluxMusical.insert(0, tempo.MetronomeMark(vraiBpmChanson))
 
 # Afficher les frames où des changements se sont produits
 # for pixel, frames in framesChangement.items():
