@@ -8,104 +8,109 @@ from music21 import *
 import moviepy.editor as mp
 from scipy.signal import find_peaks
 
-# Extraction de l'audio depuis la vidéo
-print("Extraction de l'audio depuis la vidéo...")
-clipVideo = mp.VideoFileClip(r"C:\Users\TheBr\Downloads\Yiruma_-_River_Flows_In_You_Intermediate_Piano_Tutorial.mp4")
-clipVideo.audio.write_audiofile(r"C:\Users\TheBr\Downloads\versionAudio.mp3")
+# Extraire l'audio de la vidéo
+nomVideo = mp.VideoFileClip(r"C:\Users\TheBr\Downloads\Yiruma_-_River_Flows_In_You_Intermediate_Piano_Tutorial.mp4")
+nomVideo.audio.write_audiofile(r"C:\Users\TheBr\Downloads\versionAudio.mp3")
 
-# Chemin vers le fichier audio extrait
-cheminBase = r"C:\Users\TheBr\Downloads"
-fichierAudio = os.path.join(cheminBase, "versionAudio.mp3")
+# Configuration du chemin du fichier
+cheminFichier = r"C:\Users\TheBr\Downloads"
+nomFichier = os.path.join(cheminFichier, "versionAudio.mp3")
 
-# Vérifier si le fichier audio existe
-if not os.path.exists(fichierAudio):
-    print(f"Erreur : Le fichier '{fichierAudio}' n'existe pas.")
+# Paramètres
+frequenceEchantillonnage = 44100  # Taux d'échantillonnage
+longueurFft = 2048  # Longueur de la fenêtre FFT
+recouvrement = 0.5  # Pourcentage de recouvrement
+longueurSaut = int(longueurFft * (1 - recouvrement))  # Longueur de saut
+nombreBins = 72  # Nombre de bandes de fréquence
+exposantMagnitude = 4  # Exposant de magnitude
+seuilDb = -61  # Seuil de silence en dB
+
+# Vérifier si le fichier existe
+if not os.path.exists(nomFichier):
+    print(f"Erreur : le fichier '{nomFichier}' n'existe pas.")
 else:
-    print(f"Fichier trouvé : '{fichierAudio}'. Chargement en cours...")
-    donneesAudio, frequenceEchantillonnage = librosa.load(fichierAudio)
+    print(f"Fichier '{nomFichier}' trouvé. Chargement en cours...")
+    signalAudio, frequenceEchantillonnage = librosa.load(nomFichier)
 
-    # Détection du tempo de la pièce
-    print("Détection du tempo...")
-    valeurTempo, _ = librosa.beat.beat_track(y=donneesAudio, sr=frequenceEchantillonnage)
-    valeurTempo = int(round(valeurTempo / 2))  # Arrondir au BPM le plus proche
-    print(f"Tempo détecté : {valeurTempo} BPM")
-    marqueTempo = MetronomeMark(referent='quarter', number=valeurTempo)  # Créer un marqueur de tempo
+    # Trouver le tempo du morceau
+    tempo, framesBattements = librosa.beat.beat_track(y=signalAudio, sr=frequenceEchantillonnage)
+    tempo = tempo.item()
+    tempo = int(2 * round(tempo / 2))  # Arrondi au nombre pair le plus proche
+    metronome = MetronomeMark(referent='quarter', number=tempo)  # Création de l'objet MetronomeMark
 
-    # Analyse spectrale pour détecter les notes
-    print("Analyse spectrale en cours...")
-    matriceStft = librosa.stft(donneesAudio, n_fft=2048, hop_length=int(2048 * 0.5))  # Calcul de la STFT
-    magnitudeDecibels = librosa.amplitude_to_db(np.abs(matriceStft), ref=np.max)  # Conversion en décibels
-    frequencesHz = librosa.fft_frequencies(sr=frequenceEchantillonnage, n_fft=2048)  # Fréquences correspondantes
+    # Calcul de la STFT et conversion de la magnitude en décibels
+    D = librosa.stft(signalAudio, n_fft=longueurFft, hop_length=longueurSaut)
+    magnitudeDb = librosa.amplitude_to_db(np.abs(D), ref=np.max)
+    frequences = librosa.fft_frequencies(sr=frequenceEchantillonnage, n_fft=2048)
 
-    # Fonction pour convertir une fréquence en note musicale
-    def frequenceVersNote(frequence):
-        if frequence <= 0:
+    # Estimer la hauteur pour chaque trame
+    estimationPitch = [find_peaks(magnitudeDb[:, i], height=-15)[0] for i in range(magnitudeDb.shape[1])]
+
+    # Convertir les fréquences en noms de notes
+    def pitchVersNote(pitch):
+        if pitch <= 0:
             return 'silence'
-        noteMidi = librosa.hz_to_midi(frequence)
+        noteMidi = librosa.hz_to_midi(pitch)
         nomNote = librosa.midi_to_note(noteMidi)
-        # Remplacer les symboles Unicode par des équivalents ASCII
+
+        # Remplacer les altérations Unicode par des équivalents ASCII
         nomNote = nomNote.replace('♯', '#').replace('♭', 'b')
         return nomNote
 
-    # Détecter les pics de fréquence pour chaque fenêtre temporelle
-    notesDetectees = []
-    for i in range(magnitudeDecibels.shape[1]):
-        pics, _ = find_peaks(magnitudeDecibels[:, i], height=-15)  # Trouver les pics significatifs
-        notesFenetre = [frequenceVersNote(frequencesHz[p]) for p in pics]
-        notesDetectees.append(notesFenetre)
+    notesDetectees = [[pitchVersNote(frequences[p]) for p in frame] for frame in estimationPitch]
 
+    # Debug : Afficher les notes détectées
     print("Notes détectées :", notesDetectees)
 
-    # Création de la partition MIDI
-    print("Création de la partition MIDI")
-    partition = stream.Score()  # Créer une nouvelle partition
-    partie = stream.Part()  # Créer une nouvelle partie
-    partie.insert(0, marqueTempo)  # Ajouter le tempo à la partition
+    # Création de la partition et de la partie
+    partitionMusicale = stream.Score()
+    partieMusicale = stream.Part()
+    partieMusicale.append(metadata.Metadata(title='Transcription Audio', composer='Transcription Automatique'))
 
-    # Initialiser les variables pour suivre les notes actives
-    notesActives = set()
-    dureesNotes = {}
-    dureeTrame = 2048 * 0.5 / frequenceEchantillonnage  # Durée d'une trame en secondes
-    dureeMinimale = 0.125  # Durée minimale d'une note ou d'un silence
+    # Traiter les trames et insérer les notes/silences
+    notesActuelles = set()
+    compteurNotes = {}
+    dureeTrame = 2048 * 0.5 / frequenceEchantillonnage
+    dureeMinimale = 0.125
 
-    for i, notesFenetre in enumerate(notesDetectees):
-        tempsActuel = i * dureeTrame
+    for i, trameNotes in enumerate(notesDetectees):
+        decalageTemps = i * dureeTrame
 
-        # Gérer les notes qui se terminent
-        notesTerminees = notesActives - set(notesFenetre)
-        for note in notesTerminees:
-            duree = dureesNotes.pop(note, 0) * dureeTrame
-            if duree > 0:
-                if note == 'silence':
-                    silence = note.Rest(quarterLength=max(duree, dureeMinimale))
-                    partie.insert(tempsActuel - duree, silence)
+        # Gérer les notes terminées
+        notesTerminees = notesActuelles - set(trameNotes)
+        for noteTerminee in notesTerminees:
+            dureeNote = compteurNotes.pop(noteTerminee, 0) * dureeTrame
+            if dureeNote > 0:
+                if noteTerminee == 'silence':
+                    noteSilence = note.Rest(quarterLength=max(dureeNote, dureeMinimale))
+                    partieMusicale.insert(decalageTemps - dureeNote, noteSilence)
                 else:
-                    noteMusicale = note.Note(note)
-                    noteMusicale.quarterLength = max(duree, dureeMinimale)
-                    partie.insert(tempsActuel - duree, noteMusicale)
+                    noteMusicale = note.Note(noteTerminee)
+                    noteMusicale.quarterLength = max(dureeNote, dureeMinimale)
+                    partieMusicale.insert(decalageTemps - dureeNote, noteMusicale)
 
         # Gérer les nouvelles notes
-        nouvellesNotes = set(notesFenetre) - notesActives
+        nouvellesNotes = set(trameNotes) - notesActuelles
         for nouvelleNote in nouvellesNotes:
-            dureesNotes[nouvelleNote] = 0
+            compteurNotes[nouvelleNote] = 0
 
-        # Mettre à jour les compteurs pour les notes actives
-        for noteActive in notesActives.intersection(notesFenetre):
-            dureesNotes[noteActive] += 1
+        # Mettre à jour les compteurs des notes actives
+        for noteActive in notesActuelles.intersection(trameNotes):
+            compteurNotes[noteActive] += 1
 
-        # Mettre à jour les notes actives
-        notesActives = set(notesFenetre)
+        # Mettre à jour notesActuelles
+        notesActuelles = set(trameNotes)
 
-        # Ajouter un silence si aucune note n'est détectée
-        if not notesFenetre:
-            silence = note.Rest(quarterLength=dureeMinimale)
-            partie.insert(tempsActuel, silence)
+        # Gérer les silences
+        if not trameNotes:
+            noteSilence = note.Rest(quarterLength=dureeMinimale)
+            partieMusicale.insert(decalageTemps, noteSilence)
 
-    # Finaliser la partition
-    if len(partie.notesAndRests) > 0:
-        partition.append(partie)
-        cheminMidi = 'partitionFinale.mid'
-        partition.write('midi', fp=cheminMidi)
-        print(f"Fichier MIDI créé : {cheminMidi}")
+    # Finaliser la sortie MIDI
+    if len(partieMusicale.notesAndRests) > 0:
+        partitionMusicale.append(partieMusicale)
+        cheminMidi = 'partition0010.mid'
+        partitionMusicale.write('midi', fp=cheminMidi)
+        print(f"Fichier MIDI écrit à {cheminMidi}")
     else:
-        print("Erreur : Aucune note ou silence trouvé dans la partition.")
+        print("Erreur : aucune note ou silence trouvé dans la partition.")
