@@ -3,15 +3,34 @@
 
 <html lang="fr">
 <style>
-body {
-  background-image: url("{% static 'image/f1b3eb4d-3a64-4cf5-8b92-77c5f0485293_Nero_AI_Image_Upscaler_Photo_Face.png' %}");
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
+/* Fullscreen container for the video */
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1; /* Ensure it stays behind other content */
 }
+
+/* Style the video element */
+.video-background video {
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover; /* Ensures the video covers the entire area */
+}
+
+/* Button group styling */
 .btn-group button {
-justify-content: center;
-align-items: center;
+  justify-content: center;
+  align-items: center;
   background-color: #04AA6D; /* Green background */
   border: 1px solid green; /* Green border */
   color: white; /* White text */
@@ -36,7 +55,6 @@ align-items: center;
 .btn-group button:hover {
   background-color: #3e8e41;
 }
-
 </style>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,24 +66,29 @@ align-items: center;
     <title>Detection</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="{% static 'js/main.js' %}" defer></script>
-        <!-- Fixed Button -->
-  <button class="fixed-button">Partition</button>
-</head>
+    <!-- Fixed Button -->
+    <button class="fixed-button">Partition</button>
 </head>
 <body>
 
-<div>
-    <h3> Bonjour et bienvenu a notre detecteur de partition</h3>
-    <h4> Bonjour et bienvenu a notre detecteur de partitionnnnnnnnnnnnnnnnnnnn</h4>
-    <h5> Bonjour et bienvenu a notre detecteur de partitionnnnnnnnnnnnnnnnnnnn</h5>
+<!-- Video Background -->
+<div class="video-background">
+  <video autoplay muted loop>
+    <source src="{% static 'image/web page final background.mp4' %}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
 
-     <label for="userInput">Enter your text:</label>
-  <input type="text" id="userInput" name="userInput" placeholder="Type here...">
+<div>
+    <h3> Bonjour et bienvenu à notre détecteur de partition</h3>
+
+    <label for="userInput">Entrez votre texte :</label>
+    <input type="text" id="userInput" name="userInput" placeholder="Tapez ici...">
     <hr>
     <p class="btn-group">
-  <button style="width:50%">Image</button>
-  <button style="width:50%">Audio</button>
-</p>
+      <button style="width:50%">Image</button>
+      <button style="width:50%">Audio</button>
+    </p>
 </div>
 </body>
 </html>
