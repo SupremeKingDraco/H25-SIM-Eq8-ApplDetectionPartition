@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<style>
+body {
+  background-image: url("{% static 'image/Affiche_Toma Ciprian_Busoi - Copy.png' %}");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+</style>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="30">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>About</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/main.js' %}" defer></script>
+</head>
+<body>
+<!--    style est utiliser pour changer couleur, font et plein de typographie mais tu peut faire dans le css pour donner  un theme-->
+<!--color, weight: bold, font-style: italic, background-color: color ou rgb(x,y,z), text-align, font-family, font-size: qqch%, bprder: qqchpx nomCouleur-->
+    <h1 style="color:red;font-weight: bold;">This is heading 1</h1>
+    <h2 style="font-size:60px;font-style: italic;">This is heading 2</h2>
+    <h3 style="background-color:powderblue;text-align:center;">This is heading 3</h3>
+    <h4 style="font-family:verdana;border:2px solid Tomato;">This is heading 1</h4>
+    <h5 style="font-family:courier;">This is heading 2</h5>
+    <h6 style="font-size:300%;">This is heading 3</h6>
+    <p>Check out my <a href="/">Home</a> page.</p>
+    <hr>
+    <p>This is a paragraph.</p>
+<!--    Met une bare horizontal pour diviser-->
+    <hr>
+    <p>This is another paragraph.</p>
+    <a href="https://www.w3schools.com/html/html_formatting.asp">Donne les nom pour comme bold et tout pour format direct dans html a la place de css</a>
+<!--<div>-->
+<!--    <img src="{% static 'image/Affiche_Toma Ciprian_Busoi - Copy.png' %}" alt="Description of the image" title="Additional information about the image">-->
+<!--</div>-->
+
+<h2>CSS Buttons</h2>
+
+<button>Default Button</button>
+<a href="#" class="button">Link Button</a>
+<button class="button">Button</button>
+<input type="button" class="button" value="Input Button">
+
+<p style="background-color: black; color: white;"> Hello
+    je suis
+
+</p>
+
+</body>
+</html>

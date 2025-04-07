@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="fr">
+<style>
+body {
+  background-image: url("{% static 'image/f1b3eb4d-3a64-4cf5-8b92-77c5f0485293_Nero_AI_Image_Upscaler_Photo_Face.png' %}");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+.btn-group button {
+justify-content: center;
+align-items: center;
+  background-color: #04AA6D; /* Green background */
+  border: 1px solid green; /* Green border */
+  color: white; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+  margin-right: 0%; /* Add spacing between buttons */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: #3e8e41;
+}
+
+</style>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="30">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Detection</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/main.js' %}" defer></script>
+        <!-- Fixed Button -->
+  <button class="fixed-button">Partition</button>
+</head>
+</head>
+<body>
+
+<div>
+    <h3> Bonjour et bienvenu a notre detecteur de partition</h3>
+
+     <label for="userInput">Enter your text:</label>
+  <input type="text" id="userInput" name="userInput" placeholder="Type here...">
+    <hr>
+    <p class="btn-group">
+  <button style="width:50%">Image</button>
+  <button style="width:50%">Audio</button>
+</p>
+</div>
+</body>
+</html>
