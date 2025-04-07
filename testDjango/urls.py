@@ -6,5 +6,6 @@ urlpatterns = [
     path('about/', views.about, name = 'about'),
     path('check/', views.check, name='check'),
     path('detection/', views.detection, name='detection'),
+    path('bouttonTest/', views.bouttonTest, name='bouttonTest'),
 
 ]

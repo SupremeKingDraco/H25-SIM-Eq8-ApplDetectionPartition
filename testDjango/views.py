@@ -12,3 +12,5 @@ def check(request):
     return render(request, 'testDjango/check.html', {})
 def detection(request):
     return render(request, 'testDjango/detection.html', {})
+def bouttonTest(request):
+    return render(request, 'testDjango/bouttonTest.html', {})

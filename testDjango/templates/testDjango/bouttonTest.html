@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Text Inputs</title>
+  <style>
+    /* General styling for buttons */
+    .button-container {
+      margin: 20px;
+      text-align: center;
+    }
+
+    button {
+      background-color: #04AA6D; /* Green background */
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
+    }
+
+    /* Input fields container */
+    .input-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px; /* Space between input fields */
+      margin-top: 20px;
+    }
+
+    /* Input field styling */
+    .input-container input {
+      width: 150px; /* Width of each input field */
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="button-container">
+  <!-- Initial Buttons -->
+  <button id="button1" onclick="createInputs(3)">Traitement image</button>
+  <button id="button2" onclick="createInputs(2)">Traitement audio</button>
+</div>
+
+<!-- Placeholder for dynamically created inputs -->
+<div id="dynamic-inputs" class="input-container"></div>
+
+<script>
+  /**
+   * Function to create dynamic text input fields
+   * @param {number} count - Number of input fields to create
+   */
+  function createInputs(count) {
+    // Clear any previously created inputs
+    const inputContainer = document.getElementById('dynamic-inputs');
+    inputContainer.innerHTML = '';
+
+    // Create the specified number of input fields
+    for (let i = 0; i < count; i++) {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = `Input ${i + 1}`;
+      inputContainer.appendChild(input);
+    }
+  }
+</script>
+
+</body>
+</html>
