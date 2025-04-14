@@ -13,6 +13,18 @@
     <script src="{% static 'js/main.js' %}" defer></script>
     <!-- Fixed Button -->
     <button class="fixed-button">Partition</button>
+    <style>
+        #display-area {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            color: black; /* Ensure text is black */
+        }
+        #input-data {
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Break long words */
+        }
+    </style>
 </head>
 <body>
 
@@ -31,11 +43,17 @@
     <input type="text" id="userInput" name="userInput" placeholder="Tapez ici...">
     <hr>
     <p class="btn-group">
-        <button style="width:50%" id="button1" onclick="createInputs(3)">Traitement image</button>
-        <button style="width:50%" id="button2" onclick="createInputs(1)">Traitement audio</button>
+        <button style="width:50%" id="button1" onclick="handleButtonClick(3)">Traitement image</button>
+        <button style="width:50%" id="button2" onclick="handleButtonClick(1)">Traitement audio</button>
     </p>
     <!-- Placeholder for dynamically created inputs -->
-<div id="dynamic-inputs" class="input-container"></div>
+    <div id="dynamic-inputs" class="input-container"></div>
+</div>
+
+<!-- Display Area for Input Data -->
+<div id="display-area">
+    <h4>Input Data:</h4>
+    <pre id="input-data"></pre>
 </div>
 
 <script>
@@ -71,8 +89,77 @@
         inputContainer.appendChild(input);
     }
 }
-</script>
 
+  /**
+   * Function to handle button click events
+   * @param {number} count - Number of input fields to create
+   */
+  function handleButtonClick(count) {
+    createInputs(count);
+    // Add event listener to the submit button or any other trigger
+    document.getElementById('submitButton').addEventListener('click', () => {
+      retrieveInputData();
+    });
+  }
+
+  /**
+   * Function to retrieve input data from the page
+   */
+  function retrieveInputData() {
+    // Get the value from the static input field
+    const userInput = document.getElementById('userInput').value;
+    console.log('User Input:', userInput);
+
+    // Get the values from the dynamically created input fields
+    const dynamicInputs = document.querySelectorAll('#dynamic-inputs input');
+    const dynamicInputValues = [];
+    dynamicInputs.forEach((input, index) => {
+      console.log(`Dynamic Input ${index + 1}:`, input.value);
+      dynamicInputValues.push(input.value);
+    });
+
+    // Display the data in the display area
+    displayInputData(userInput, dynamicInputValues);
+
+    // Process the data as needed
+    processData(userInput, dynamicInputs);
+  }
+
+  /**
+   * Function to display input data on the webpage
+   * @param {string} userInput - Value from the static input field
+   * @param {array} dynamicInputValues - Values from the dynamically created input fields
+   */
+  function displayInputData(userInput, dynamicInputValues) {
+    const displayArea = document.getElementById('input-data');
+    displayArea.innerHTML = `User Input: ${userInput}\n`;
+    dynamicInputValues.forEach((value, index) => {
+      displayArea.innerHTML += `Dynamic Input ${index + 1}: ${value}\n`;
+    });
+  }
+
+  /**
+   * Function to process the retrieved data
+   * @param {string} userInput - Value from the static input field
+   * @param {NodeList} dynamicInputs - Values from the dynamically created input fields
+   */
+  function processData(userInput, dynamicInputs) {
+    // Example processing: Log the data to the console
+    console.log('Processing Data:');
+    console.log('User Input:', userInput);
+    dynamicInputs.forEach((input, index) => {
+      console.log(`Dynamic Input ${index + 1}:`, input.value);
+    });
+
+    // Add your data processing logic here
+  }
+
+  // Add a submit button to trigger data retrieval
+  const submitButton = document.createElement('button');
+  submitButton.id = 'submitButton';
+  submitButton.textContent = 'Submit';
+  document.body.appendChild(submitButton);
+</script>
 
 </body>
 </html>
