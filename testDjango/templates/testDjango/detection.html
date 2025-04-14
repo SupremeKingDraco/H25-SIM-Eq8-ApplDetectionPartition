@@ -11,28 +11,28 @@
     <title>Detection</title>
     <link rel="stylesheet" href="{% static 'css/traducteurPage.css' %}">
     <script src="{% static 'js/main.js' %}" defer></script>
-    <!-- Fixed Button -->
+    <!-- Bouton Fixe -->
     <button class="fixed-button">Partition</button>
     <style>
         #display-area {
             background-color: white;
             padding: 20px;
             margin-top: 20px;
-            color: black; /* Ensure text is black */
+            color: black; /* Assure que le texte est en noir */
         }
         #input-data {
-            white-space: pre-wrap; /* Preserve whitespace and line breaks */
-            word-wrap: break-word; /* Break long words */
+            white-space: pre-wrap; /* Préserve les espaces et les retours à la ligne */
+            word-wrap: break-word; /* Coupe les mots longs */
         }
     </style>
 </head>
 <body>
 
-<!-- Video Background -->
+<!-- Arrière-plan Vidéo -->
 <div class="video-background">
   <video autoplay muted loop>
     <source src="{% static 'image/web page final background.mp4' %}" type="video/mp4">
-    Your browser does not support the video tag.
+    Votre navigateur ne supporte pas la balise vidéo.
   </video>
 </div>
 
@@ -46,27 +46,32 @@
         <button style="width:50%" id="button1" onclick="handleButtonClick(3)">Traitement image</button>
         <button style="width:50%" id="button2" onclick="handleButtonClick(1)">Traitement audio</button>
     </p>
-    <!-- Placeholder for dynamically created inputs -->
+    <!-- Conteneur pour les champs d'entrée dynamiques -->
     <div id="dynamic-inputs" class="input-container"></div>
 </div>
 
-<!-- Display Area for Input Data -->
+<!-- Zone d'affichage pour les données d'entrée -->
 <div id="display-area">
-    <h4>Input Data:</h4>
+    <h4>Données d'entrée :</h4>
     <pre id="input-data"></pre>
 </div>
 
+<!-- Bouton de Soumission -->
+<button id="submitButton">Soumettre</button>
+
 <script>
+  let treatmentSelected = false;
+
   /**
-   * Function to create dynamic text input fields
-   * @param {number} count - Number of input fields to create
+   * Fonction pour créer des champs de texte dynamiques
+   * @param {number} count - Nombre de champs d'entrée à créer
    */
   function createInputs(count) {
-    // Clear any previously created inputs
+    // Efface les champs d'entrée précédemment créés
     const inputContainer = document.getElementById('dynamic-inputs');
     inputContainer.innerHTML = '';
 
-    // Define tagName based on count
+    // Définit tagName en fonction du compte
     let tagName = [];
     if (count == 1) {
         tagName = ["Selectionner le seuil de décibel. (recommander entre -40 et -10)"];
@@ -74,91 +79,107 @@
         tagName = ["earth", "air", "fire"];
     }
 
-    // Create the specified number of input fields
+    // Crée le nombre spécifié de champs d'entrée
     for (let i = 0; i < count; i++) {
         const input = document.createElement('input');
         input.type = 'text';
-        input.placeholder = tagName[i] || "default"; // Fallback to "default" if tagName[i] is undefined
+        input.placeholder = tagName[i] || "default"; // Utilise "default" si tagName[i] est indéfini
 
-        // Dynamically adjust font size and width for count == 1
+        // Ajuste dynamiquement la taille de la police et la largeur pour count == 1
         if (count == 1) {
-            input.style.fontSize = "20px"; // Increase font size for better visibility
-            input.style.width = `${tagName[i].length * 10}px`; // Adjust width based on placeholder text length
+            input.style.fontSize = "20px"; // Augmente la taille de la police pour une meilleure visibilité
+            input.style.width = `${tagName[i].length * 10}px`; // Ajuste la largeur en fonction de la longueur du texte du placeholder
         }
 
         inputContainer.appendChild(input);
     }
+
+    // Définit treatmentSelected sur true lorsque les champs d'entrée sont créés
+    treatmentSelected = true;
 }
 
   /**
-   * Function to handle button click events
-   * @param {number} count - Number of input fields to create
+   * Fonction pour gérer les événements de clic sur les boutons
+   * @param {number} count - Nombre de champs d'entrée à créer
    */
   function handleButtonClick(count) {
     createInputs(count);
-    // Add event listener to the submit button or any other trigger
-    document.getElementById('submitButton').addEventListener('click', () => {
-      retrieveInputData();
-    });
   }
 
   /**
-   * Function to retrieve input data from the page
+   * Fonction pour récupérer les données d'entrée de la page
    */
   function retrieveInputData() {
-    // Get the value from the static input field
-    const userInput = document.getElementById('userInput').value;
-    console.log('User Input:', userInput);
+    // Vérifie si une option de traitement a été sélectionnée
+    if (!treatmentSelected) {
+      alert("Veuillez d'abord sélectionner une option de traitement.");
+      return;
+    }
 
-    // Get the values from the dynamically created input fields
+    // Récupère la valeur du champ d'entrée statique
+    const userInput = document.getElementById('userInput').value;
+    if (userInput.trim() === "") {
+      alert("Veuillez entrer du texte dans le champ d'entrée.");
+      return;
+    }
+
+    // Récupère les valeurs des champs d'entrée dynamiques
     const dynamicInputs = document.querySelectorAll('#dynamic-inputs input');
     const dynamicInputValues = [];
+    let allInputsFilled = true;
+
     dynamicInputs.forEach((input, index) => {
-      console.log(`Dynamic Input ${index + 1}:`, input.value);
+      if (input.value.trim() === "") {
+        allInputsFilled = false;
+      }
       dynamicInputValues.push(input.value);
     });
 
-    // Display the data in the display area
+    if (!allInputsFilled) {
+      alert("Veuillez remplir tous les champs d'entrée dynamiques.");
+      return;
+    }
+
+    // Affiche les données dans la zone d'affichage
     displayInputData(userInput, dynamicInputValues);
 
-    // Process the data as needed
+    // Traite les données si nécessaire
     processData(userInput, dynamicInputs);
   }
 
   /**
-   * Function to display input data on the webpage
-   * @param {string} userInput - Value from the static input field
-   * @param {array} dynamicInputValues - Values from the dynamically created input fields
+   * Fonction pour afficher les données d'entrée sur la page web
+   * @param {string} userInput - Valeur du champ d'entrée statique
+   * @param {array} dynamicInputValues - Valeurs des champs d'entrée dynamiques
    */
   function displayInputData(userInput, dynamicInputValues) {
     const displayArea = document.getElementById('input-data');
-    displayArea.innerHTML = `User Input: ${userInput}\n`;
+    displayArea.innerHTML = `Entrée Utilisateur : ${userInput}\n`;
     dynamicInputValues.forEach((value, index) => {
-      displayArea.innerHTML += `Dynamic Input ${index + 1}: ${value}\n`;
+      displayArea.innerHTML += `Entrée Dynamique ${index + 1} : ${value}\n`;
     });
   }
 
   /**
-   * Function to process the retrieved data
-   * @param {string} userInput - Value from the static input field
-   * @param {NodeList} dynamicInputs - Values from the dynamically created input fields
+   * Fonction pour traiter les données récupérées
+   * @param {string} userInput - Valeur du champ d'entrée statique
+   * @param {NodeList} dynamicInputs - Valeurs des champs d'entrée dynamiques
    */
   function processData(userInput, dynamicInputs) {
-    // Example processing: Log the data to the console
-    console.log('Processing Data:');
-    console.log('User Input:', userInput);
+    // Exemple de traitement : Enregistre les données dans la console
+    console.log('Traitement des données :');
+    console.log('Entrée Utilisateur :', userInput);
     dynamicInputs.forEach((input, index) => {
-      console.log(`Dynamic Input ${index + 1}:`, input.value);
+      console.log(`Entrée Dynamique ${index + 1} :`, input.value);
     });
 
-    // Add your data processing logic here
+    // Ajoutez votre logique de traitement des données ici
   }
 
-  // Add a submit button to trigger data retrieval
-  const submitButton = document.createElement('button');
-  submitButton.id = 'submitButton';
-  submitButton.textContent = 'Submit';
-  document.body.appendChild(submitButton);
+  // Ajoute un écouteur d'événements au bouton de soumission
+  document.getElementById('submitButton').addEventListener('click', () => {
+    retrieveInputData();
+  });
 </script>
 
 </body>
