@@ -1,4 +1,5 @@
 # from django.http import HttpResponse
+# from myproject.myproject.cleanProject import
 from django.shortcuts import render
 
 # Create your views here.

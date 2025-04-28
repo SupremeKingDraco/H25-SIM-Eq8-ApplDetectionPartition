@@ -43,7 +43,7 @@
     <input type="text" id="userInput" name="userInput" placeholder="Tapez ici...">
     <hr>
     <p class="btn-group">
-        <button style="width:50%" id="button1" onclick="handleButtonClick(3)">Traitement image</button>
+        <button style="width:50%" id="button1" onclick="handleButtonClick(4)">Traitement image</button>
         <button style="width:50%" id="button2" onclick="handleButtonClick(1)">Traitement audio</button>
     </p>
     <!-- Conteneur pour les champs d'entrée dynamiques -->
@@ -75,15 +75,15 @@
     let tagName = [];
     if (count == 1) {
         tagName = ["Selectionner le seuil de décibel. (recommander entre -40 et -10)"];
-    } else if (count == 3) {
-        tagName = ["earth", "air", "fire"];
+    } else if (count == 4) {
+        tagName = ["bpm", "nombre bemole/ diez", "premiere note ex: La","premiere octave ex: 4"];
     }
 
     // Crée le nombre spécifié de champs d'entrée
     for (let i = 0; i < count; i++) {
         const input = document.createElement('input');
         input.type = 'text';
-        input.placeholder = tagName[i] || "default"; // Utilise "default" si tagName[i] est indéfini
+        input.placeholder = tagName[i];
 
         // Ajuste dynamiquement la taille de la police et la largeur pour count == 1
         if (count == 1) {
@@ -166,14 +166,9 @@
    * @param {NodeList} dynamicInputs - Valeurs des champs d'entrée dynamiques
    */
   function processData(userInput, dynamicInputs) {
-    // Exemple de traitement : Enregistre les données dans la console
-    console.log('Traitement des données :');
-    console.log('Entrée Utilisateur :', userInput);
-    dynamicInputs.forEach((input, index) => {
-      console.log(`Entrée Dynamique ${index + 1} :`, input.value);
-    });
 
-    // Ajoutez votre logique de traitement des données ici
+
+
   }
 
   // Ajoute un écouteur d'événements au bouton de soumissions
