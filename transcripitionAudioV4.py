@@ -9,18 +9,18 @@ import moviepy.editor as mp
 from scipy.signal import find_peaks, butter, filtfilt, medfilt
 
 def extraire_audio(nomVideo, cheminFichier, nomFichier):
-    # Extraire l'audio de la vidéo et l'enregistrer sous forme de fichier MP3.
+    """Extraire l'audio de la vidéo et l'enregistrer sous forme de fichier MP3."""
     video = mp.VideoFileClip(nomVideo)
     video.audio.write_audiofile(nomFichier)
 
 def charger_fichier_audio(nomFichier, frequenceEchantillonnage=44100):
-    # Charger le fichier audio et retourner le signal audio et la fréquence d'échantillonnage.
+    """Charger le fichier audio et retourner le signal audio et la fréquence d'échantillonnage."""
     if not os.path.exists(nomFichier):
         raise FileNotFoundError(f"Erreur : le fichier '{nomFichier}' n'existe pas.")
     return librosa.load(nomFichier, sr=frequenceEchantillonnage)
 
 def detecter_tempo(signalAudio, frequenceEchantillonnage):
-    # Détecter le tempo du morceau audio
+    """Détecter le tempo du morceau audio."""
 
     tempo, framesBattements = librosa.beat.beat_track(y=signalAudio, sr=frequenceEchantillonnage)
     tempo = tempo.item()
@@ -28,26 +28,26 @@ def detecter_tempo(signalAudio, frequenceEchantillonnage):
     return MetronomeMark(referent='quarter', number=tempo)
 
 def butter_lowpass(cutoff, fs, order=5):
-    # Conception d'un filtre passe-bas Butterworth.
+    """Conception d'un filtre passe-bas Butterworth."""
     nyquist = 0.5 * fs
     normal_cutoff = cutoff / nyquist
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return b, a
 
 def lowpass_filter(data, cutoff, fs, order=5):
-    # Application d'un filtre passe-bas
+    """Application d'un filtre passe-bas."""
     b, a = butter_lowpass(cutoff, fs, order=order)
     y = filtfilt(b, a, data)
     return y
 
 def appliquer_filtres(signalAudio, frequenceEchantillonnage, cutoff_frequency=4186, kernel_size=5):
-    # Appliquer les filtres passe-bas et médian au signal audio
+    """Appliquer les filtres passe-bas et médian au signal audio."""
     filtered_signal = lowpass_filter(signalAudio, cutoff_frequency, frequenceEchantillonnage)
     filtered_signal = medfilt(filtered_signal, kernel_size=kernel_size)
     return filtered_signal
 
 def estimer_hauteur(filtered_signal, frequenceEchantillonnage, longueurFft, longueurSaut, seuilDb):
-    # Estimer la hauteur (pitch) pour chaque trame du signal audio
+    """Estimer la hauteur (pitch) pour chaque trame du signal audio."""
     D = librosa.stft(filtered_signal, n_fft=longueurFft, hop_length=longueurSaut)
     magnitudeDb = librosa.amplitude_to_db(np.abs(D), ref=np.max)
     frequences = librosa.fft_frequencies(sr=frequenceEchantillonnage, n_fft=longueurFft)
@@ -60,7 +60,7 @@ def estimer_hauteur(filtered_signal, frequenceEchantillonnage, longueurFft, long
     return estimationPitch, frequences, magnitudeDb
 
 def pitchVersNote(pitch, frequences):
-    # Convertir une fréquence en nom de note.
+    """Convertir une fréquence en nom de note."""
     if pitch <= 0:
         return 'silence'
     noteMidi = librosa.hz_to_midi(pitch)
@@ -68,7 +68,7 @@ def pitchVersNote(pitch, frequences):
     return nomNote.replace('♯', '#').replace('♭', 'b')
 
 def creer_partition(estimationPitch, frequences, frequenceEchantillonnage, longueurFft, longueurSaut):
-    #Créer une partition musicale à partir des hauteurs estimées
+    """Créer une partition musicale à partir des hauteurs estimées."""
     notesDetectees = [[pitchVersNote(frequences[p], frequences) for p in frame] for frame in estimationPitch]
     partitionMusicale = stream.Score()
     partieMusicale = stream.Part()
@@ -115,7 +115,7 @@ def creer_partition(estimationPitch, frequences, frequenceEchantillonnage, longu
     else:
         print("Erreur : aucune note ou silence trouvé dans la partition.")
 
-def visualiser_spectrogramme(magnitudeDb, frequenceEchantillonnage, longueurSaut, estimationPitch, longueurFft):
+def visualiser_spectrogramme(magnitudeDb, frequenceEchantillonnage, longueurSaut, estimationPitch, filtered_signal):
     plt.figure(figsize=(12, 6))
     librosa.display.specshow(magnitudeDb, sr=frequenceEchantillonnage, hop_length=longueurSaut, x_axis='time',
                              y_axis='log')
@@ -130,18 +130,39 @@ def visualiser_spectrogramme(magnitudeDb, frequenceEchantillonnage, longueurSaut
 
     plt.tight_layout()
     plt.show()
+    plt.figure(figsize=(12, 6))
+    librosa.display.specshow(magnitudeDb, sr=frequenceEchantillonnage, hop_length=longueurSaut, x_axis='time',
+                             y_axis='log')
+    plt.figure(figsize=(12, 4))
+    librosa.display.waveshow(filtered_signal, sr=frequenceEchantillonnage)
+    plt.title('Forme d\'onde du signal audio filtré')
+    plt.tight_layout()
+    plt.show()
+
+    hop_length = 512
+    chromagram = librosa.feature.chroma_cqt(y=filtered_signal, sr=frequenceEchantillonnage, hop_length=hop_length)
+
+
+    plt.figure(figsize=(15, 5))
+    librosa.display.specshow(chromagram, x_axis='time', y_axis='chroma', hop_length=hop_length, cmap='coolwarm')
+    plt.colorbar()
+    plt.title('Chromagram')
+    plt.tight_layout()
+    plt.show()
+
 
 def main(nomVideo, cheminFichier, nomFichier, longueurFft, recouvrement, seuilDb):
+    # Fonction principale pour exécuter le processus de transcription audio
     extraire_audio(nomVideo, cheminFichier, nomFichier)
     signalAudio, frequenceEchantillonnage = charger_fichier_audio(nomFichier)
     tempo = detecter_tempo(signalAudio, frequenceEchantillonnage)
-
+    print(f"Tempo détecté : {tempo}")
 
     longueurSaut = int(longueurFft * (1 - recouvrement))
     filtered_signal = appliquer_filtres(signalAudio, frequenceEchantillonnage)
     estimationPitch, frequences, magnitudeDb = estimer_hauteur(filtered_signal, frequenceEchantillonnage, longueurFft, longueurSaut, seuilDb)
     creer_partition(estimationPitch, frequences, frequenceEchantillonnage, longueurFft, longueurSaut)
-    visualiser_spectrogramme(magnitudeDb, frequenceEchantillonnage, longueurSaut, estimationPitch, longueurFft)
+    visualiser_spectrogramme(magnitudeDb, frequenceEchantillonnage, longueurSaut, estimationPitch, filtered_signal)
 
 # Exemple d'utilisation
 nomVideo = r"C:\Users\TheBr\Downloads\Yiruma_-_River_Flows_In_You_Intermediate_Piano_Tutorial.mp4"
@@ -152,5 +173,4 @@ recouvrement = 0.5
 seuilDb = -15
 
 
-def run():
-    main(nomVideo, cheminFichier, nomFichier, longueurFft, recouvrement, seuilDb)
+main(nomVideo, cheminFichier, nomFichier, longueurFft, recouvrement, seuilDb)
