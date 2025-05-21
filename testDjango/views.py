@@ -1,5 +1,5 @@
 # from django.http import HttpResponse
-# from myproject.myproject.cleanProject import
+# from myproject.myproject.cleanProject import process_video_and_generate_midi
 from django.shortcuts import render
 
 # Create your views here.

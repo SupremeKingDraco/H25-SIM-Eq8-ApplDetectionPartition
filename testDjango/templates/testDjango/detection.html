@@ -37,45 +37,47 @@
 </div>
 
 <div style="background-color: rgba(0, 0, 0, 0.8); width: 1300px;height: 700px;">
-    <h3> Bonjour et bienvenu à notre détecteur de partition</h3>
+    <h3> Convertisseur video youtube à partition de piano</h3>
 
-    <label for="userInput">Entrez votre texte :</label>
+    <label for="userInput">Entrez le absulte path de la chanson :</label>
     <input type="text" id="userInput" name="userInput" placeholder="Tapez ici...">
     <hr>
     <p class="btn-group">
-        <button style="width:50%" id="button1" onclick="handleButtonClick(4)">Traitement image</button>
-        <button style="width:50%" id="button2" onclick="handleButtonClick(1)">Traitement audio</button>
+        <button style="width:50%" id="button1" onclick="handleButtonClick(4, 'image')">Traitement image</button>
+        <button style="width:50%" id="button2" onclick="handleButtonClick(1, 'audio')">Traitement audio</button>
     </p>
     <!-- Conteneur pour les champs d'entrée dynamiques -->
     <div id="dynamic-inputs" class="input-container"></div>
 </div>
 
-<!-- Zone d'affichage pour les données d'entrée -->
-<div id="display-area">
-    <h4>Données d'entrée :</h4>
-    <pre id="input-data"></pre>
-</div>
+<!--&lt;!&ndash; Zone d'affichage pour les données d'entrée &ndash;&gt;-->
+<!--<div id="display-area">-->
+<!--    <h4>Données d'entrée :</h4>-->
+<!--    <pre id="input-data"></pre>-->
+<!--</div>-->
 
-<!-- Bouton de Soumission -->
-<button id="submitButton">Soumettre</button>
+<!--&lt;!&ndash; Bouton de Soumission &ndash;&gt;-->
+<!--<button id="submitButton">Soumettre</button>-->
 
 <script>
   let treatmentSelected = false;
+  let selectedTreatment = ""; // Variable to track the selected treatment
 
   /**
    * Fonction pour créer des champs de texte dynamiques
    * @param {number} count - Nombre de champs d'entrée à créer
+   * @param {string} treatmentType - Type de traitement sélectionné (image ou audio)
    */
-  function createInputs(count) {
+  function createInputs(count, treatmentType) {
     // Efface les champs d'entrée précédemment créés
     const inputContainer = document.getElementById('dynamic-inputs');
     inputContainer.innerHTML = '';
 
     // Définit tagName en fonction du compte
     let tagName = [];
-    if (count == 1) {
+    if (treatmentType === "audio") {
         tagName = ["Selectionner le seuil de décibel. (recommander entre -40 et -10)"];
-    } else if (count == 4) {
+    } else if (treatmentType === "image") {
         tagName = ["bpm", "nombre bemole/ diez", "premiere note ex: La","premiere octave ex: 4"];
     }
 
@@ -96,14 +98,16 @@
 
     // Définit treatmentSelected sur true lorsque les champs d'entrée sont créés
     treatmentSelected = true;
-}
+  }
 
   /**
    * Fonction pour gérer les événements de clic sur les boutons
    * @param {number} count - Nombre de champs d'entrée à créer
+   * @param {string} treatmentType - Type de traitement sélectionné (image ou audio)
    */
-  function handleButtonClick(count) {
-    createInputs(count);
+  function handleButtonClick(count, treatmentType) {
+    selectedTreatment = treatmentType; // Stocke le type de traitement sélectionné
+    createInputs(count, treatmentType);
   }
 
   /**
@@ -141,20 +145,22 @@
     }
 
     // Affiche les données dans la zone d'affichage
-    displayInputData(userInput, dynamicInputValues);
+    displayInputData(userInput, dynamicInputValues, selectedTreatment);
 
     // Traite les données si nécessaire
-    processData(userInput, dynamicInputs);
+    processData(userInput, dynamicInputs, selectedTreatment); // Pass the selected treatment
   }
 
   /**
    * Fonction pour afficher les données d'entrée sur la page web
    * @param {string} userInput - Valeur du champ d'entrée statique
    * @param {array} dynamicInputValues - Valeurs des champs d'entrée dynamiques
+   * @param {string} selectedTreatment - Type de traitement sélectionné (image ou audio)
    */
-  function displayInputData(userInput, dynamicInputValues) {
+  function displayInputData(userInput, dynamicInputValues, selectedTreatment) {
     const displayArea = document.getElementById('input-data');
     displayArea.innerHTML = `Entrée Utilisateur : ${userInput}\n`;
+    displayArea.innerHTML += `Traitement Sélectionné : ${selectedTreatment === "image" ? "Traitement image" : "Traitement audio"}\n`;
     dynamicInputValues.forEach((value, index) => {
       displayArea.innerHTML += `Entrée Dynamique ${index + 1} : ${value}\n`;
     });
@@ -164,11 +170,19 @@
    * Fonction pour traiter les données récupérées
    * @param {string} userInput - Valeur du champ d'entrée statique
    * @param {NodeList} dynamicInputs - Valeurs des champs d'entrée dynamiques
+   * @param {string} selectedTreatment - Type de traitement sélectionné (image ou audio)
    */
-  function processData(userInput, dynamicInputs) {
+  function processData(userInput, dynamicInputs, selectedTreatment) {
+    console.log("Traitement sélectionné:", selectedTreatment);
+    console.log("Données utilisateur:", userInput);
+    console.log("Données dynamiques:", Array.from(dynamicInputs).map(input => input.value));
 
-
-
+    // Vous pouvez ajouter ici la logique spécifique au traitement sélectionné
+    if (selectedTreatment === "image") {
+      console.log("Traitement de l'image...");
+    } else if (selectedTreatment === "audio") {
+      console.log("Traitement de l'audio...");
+    }
   }
 
   // Ajoute un écouteur d'événements au bouton de soumissions
