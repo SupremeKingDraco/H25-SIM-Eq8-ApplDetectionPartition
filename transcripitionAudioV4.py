@@ -12,10 +12,10 @@ from scipy.signal import find_peaks, butter, filtfilt, medfilt
 longueurFft = 2048
 recouvrement = 0.5
 
-def extraire_audio(nomVideo, nomFichier):
+def extraire_audio(path_video, path_fichier_audio):
     # Extraire l'audio de la vidéo et l'enregistrer sous forme de fichier MP3
-    video = mp.VideoFileClip(nomVideo)
-    video.audio.write_audiofile(nomFichier)
+    video = mp.VideoFileClip(path_video)
+    video.audio.write_audiofile(path_fichier_audio)
 
 def charger_fichier_audio(nom_fichier, frequence_echantillonnage=44100):
     # Charger le fichier audio et retourner le signal audio et la fréquence d'échantillonnage
@@ -122,7 +122,7 @@ def creer_partition(estimation_pitch, frequences, frequence_echantillonnage, lon
 def visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_saut, estimation_pitch, filtered_signal):
     # spectogramme
     plt.figure(figsize=(15, 5))
-    librosa.display.specshow(magnitude_db, sr=frequence_echantillonnage, hop_length=longueur_saut, x_axis='temps',
+    librosa.display.specshow(magnitude_db, sr=frequence_echantillonnage, hop_length=longueur_saut, x_axis='time',
                              y_axis='log')
     plt.colorbar(format='%+2.0f dB')
     plt.title('Spectrogramme avec Pics Détectés')
@@ -136,7 +136,7 @@ def visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_s
     plt.tight_layout()
     plt.show()
     plt.figure(figsize=(15, 5))
-    librosa.display.specshow(magnitude_db, sr=frequence_echantillonnage, hop_length=longueur_saut, x_axis='temps',
+    librosa.display.specshow(magnitude_db, sr=frequence_echantillonnage, hop_length=longueur_saut, x_axis='time',
                              y_axis='log')
     # forme d'onde
     plt.figure(figsize=(15, 5))
@@ -150,17 +150,17 @@ def visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_s
 
 
     plt.figure(figsize=(15, 5))
-    librosa.display.specshow(chromagram, x_axis='temps', y_axis='chroma', hop_length=hop_length, cmap='coolwarm')
+    librosa.display.specshow(chromagram, x_axis='time', y_axis='chroma', hop_length=hop_length, cmap='coolwarm')
     plt.colorbar()
     plt.title('Chromagram')
     plt.tight_layout()
     plt.show()
 
 
-def main(nom_video, nom_fichier, seuil_db):
+def main(path_video, path_fichier_audio, seuil_db):
     # Fonction principale pour exécuter le processus de transcription audio
-    extraire_audio(nom_video, nom_fichier)
-    signal_audio, frequence_echantillonnage = charger_fichier_audio(nom_fichier)
+    extraire_audio(path_video, path_fichier_audio)
+    signal_audio, frequence_echantillonnage = charger_fichier_audio(path_fichier_audio)
     tempo = detecter_tempo(signal_audio, frequence_echantillonnage)
 
 
@@ -169,3 +169,7 @@ def main(nom_video, nom_fichier, seuil_db):
     estimation_pitch, frequences, magnitude_db = estimer_hauteur(signal_filtre, frequence_echantillonnage, longueurFft, longueur_saut, seuil_db)
     creer_partition(estimation_pitch, frequences, frequence_echantillonnage, longueurFft)
     visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_saut, estimation_pitch, signal_filtre)
+
+
+
+main(r"C:\Users\TheBr\Downloads\videoplayback.mp4", r"C:\Users\TheBr\Downloads\versionAudio.mp3", -20)
