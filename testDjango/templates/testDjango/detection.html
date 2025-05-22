@@ -39,12 +39,13 @@
 <div style="background-color: rgba(0, 0, 0, 0.8); width: 1300px;height: 700px;">
     <h3> Convertisseur video youtube à partition de piano</h3>
 
-    <label for="userInput">Entrez le absulte path de la chanson :</label>
+    <label for="userInput">Entrez le absolute path de la chanson :</label>
     <input type="text" id="userInput" name="userInput" placeholder="Tapez ici...">
     <hr>
     <p class="btn-group">
-        <button style="width:50%" id="button1" onclick="handleButtonClick(4, 'image')">Traitement image</button>
-        <button style="width:50%" id="button2" onclick="handleButtonClick(1, 'audio')">Traitement audio</button>
+        <button style="width:33%" id="button1" onclick="handleButtonClick(4, 'image')">Traitement image</button>
+        <button style="width:33%" id="button2" onclick="handleButtonClick(2, 'audio')">Traitement audio</button>
+        <button style="width:33%" id="button3" onclick="handleButtonClick(1, 'transpose')">Transpose</button>
     </p>
     <!-- Conteneur pour les champs d'entrée dynamiques -->
     <div id="dynamic-inputs" class="input-container"></div>
@@ -76,9 +77,11 @@
     // Définit tagName en fonction du compte
     let tagName = [];
     if (treatmentType === "audio") {
-        tagName = ["Selectionner le seuil de décibel. (recommander entre -40 et -10)"];
+        tagName = ["Seuil de décibel. (recommander entre -40 et -10)","Path pour extraire et download mp3 du mp4"];
     } else if (treatmentType === "image") {
         tagName = ["bpm", "nombre bemole/ diez", "premiere note ex: Do=0 La=5","premiere octave ex: 4"];
+    } else {
+    tagName = ["Nouvelle gamme ex: F#"];
     }
 
     // Crée le nombre spécifié de champs d'entrée
@@ -87,11 +90,7 @@
         input.type = 'text';
         input.placeholder = tagName[i];
 
-        // Ajuste dynamiquement la taille de la police et la largeur pour count == 1
-        if (count == 1) {
-            input.style.fontSize = "20px"; // Augmente la taille de la police pour une meilleure visibilité
-            input.style.width = `${tagName[i].length * 10}px`; // Ajuste la largeur en fonction de la longueur du texte du placeholder
-        }
+
 
         inputContainer.appendChild(input);
     }

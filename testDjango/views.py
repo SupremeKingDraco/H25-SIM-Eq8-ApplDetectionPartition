@@ -7,6 +7,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from myproject.cleanProject import process_video_and_generate_midi
+# from myproject.transcriptionAudioV4 import main
+# from myproject.transposePiece import transposer_midi
 
 
 # Create your views here.
@@ -38,11 +40,18 @@ def detectionApi(request):
     params = data["parsedDynamicInputs"]
     selectedTreatment = data["selectedTreatment"]
 
-    for i in range(len(params)):
-        params[i] = int(params[i])
-
     if (selectedTreatment == "image"):
+        for i in range(len(params)):
+            params[i] = int(params[i])
         process_video_and_generate_midi(nomChanson, params[0], params[1], params[2], params[3])
+    elif (selectedTreatment == "audio"):
+        params[0] = int(params[0])
+        params[1] = str(params[1])
+        main(nomChanson, params[0], params[1])
+    else:
+        params[0] = str(params[0])
+        transposer_midi(nomChanson,params[0])
+
 
 
     return JsonResponse({"msg": "Detection API a été appelé."})

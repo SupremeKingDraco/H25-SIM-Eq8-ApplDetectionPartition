@@ -3,42 +3,42 @@ import numpy as np
 # from music21 import *
 
 
-def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombreArmure: int, commencement: int, gamme: int,  pixelsSelectionnes=[(10, 291), (36, 251), (51, 293), (65, 293), (92, 242), (114, 243), (124, 292), (139, 289), (168, 247), (179, 293), (198, 292), (222, 247), (244, 252), (256, 297), (274, 289), (299, 254), (311, 294), (329, 291), (357, 257), (376, 253), (384, 291), (403, 286), (432, 248), (442, 289), (462, 290), (488, 257), (508, 259), (518, 291), (538, 292), (562, 254), (574, 288), (592, 292), (617, 254)]):
+def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nombre_armure: int, commencement: int, gamme: int,  pixels_selectionnes=[(10, 291), (36, 251), (51, 293), (65, 293), (92, 242), (114, 243), (124, 292), (139, 289), (168, 247), (179, 293), (198, 292), (222, 247), (244, 252), (256, 297), (274, 289), (299, 254), (311, 294), (329, 291), (357, 257), (376, 253), (384, 291), (403, 286), (432, 248), (442, 289), (462, 290), (488, 257), (508, 259), (518, 291), (538, 292), (562, 254), (574, 288), (592, 292), (617, 254)]):
     """
     This function processes a video to detect pixel changes and generates a MIDI file.
 
     Parameters:
-        nomChanson (str): Path to the input video file.
+        nom_chanson (str): Path to the input video file.
         notes (list): List of musical notes corresponding to the detected pixels.
         gamme (int): Starting octave for the notes.
-        vraiBpmChanson (int): Actual BPM of the song.
-        pixelsSelectionnes (list): List of pixel coordinates to monitor for changes.
+        vrai_bpm_chanson (int): Actual BPM of the song.
+        pixels_selectionnes (list): List of pixel coordinates to monitor for changes.
         tolerence (int): Tolerance threshold for detecting significant color changes.
         commencement (int): Index to start assigning notes from the `notes` list.
-        valeurDeMultiplication (int): Multiplier for BPM conversion.
+        valeur_de_multiplication (int): Multiplier for BPM conversion.
     """
 
     # Set up detection
-    valeurDeMultiplication = 16
+    valeur_de_multiplication = 16
     tolerence = 100
-    arrayPixel = []
-    frameCorrection = -1
-    bpmChanson = vraiBpmChanson * valeurDeMultiplication
-    bpsChanson = bpmChanson / 60
+    array_pixel = []
+    frame_correction = -1
+    bpm_chanson = vrai_bpm_chanson * valeur_de_multiplication
+    bpm_chanson = bpm_chanson / 60
     notes = ["C", "D", "E", "F", "G", "A", "B"]
 
     ordre_des_dieses = ["F#", "C#", "G#", "D#", "A#", "E#", "B#"]
     ordre_des_bemols = ["F-", "C-", "G-", "D-", "A-", "E-", "B-"]
 
-    if nombreArmure > 0:
-        a_modifier = ordre_des_dieses[:nombreArmure]
+    if nombre_armure > 0:
+        a_modifier = ordre_des_dieses[:nombre_armure]
         for acc in a_modifier:
             note_base = acc[0]
             index = notes.index(note_base)
             notes[index] = acc
-    elif nombreArmure < 0:
-        nombreArmure = abs(nombreArmure)
-        a_modifier = ordre_des_bemols[:nombreArmure]
+    elif nombre_armure < 0:
+        nombre_armure = abs(nombre_armure)
+        a_modifier = ordre_des_bemols[:nombre_armure]
         for acc in a_modifier:
             note_base = acc[0]
             index = notes.index(note_base)
@@ -48,41 +48,41 @@ def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombre
 
 
     class Pixel:
-        def __init__(self, coordonnee, valeurInitiale):
+        def __init__(self, coordonnee, valeur_initiale):
             self.coordonnee = coordonnee
-            self.valeurInitiale = valeurInitiale
+            self.valeur_initiale = valeur_initiale
             self.note = None
-            self.framesChangement = []
+            self.frames_changement = []
 
     # Fonction de rappel de la souris pour capturer les pixels sélectionnés
-    def selectionnerPixel(event, x, y, flags, param):
-        nonlocal pixelsSelectionnes, frame
+    def selectionner_pixel(event, x, y, flags, param):
+        nonlocal pixels_selectionnes, frame
         if event == cv2.EVENT_LBUTTONDOWN:
-            pixelsSelectionnes.append((x, y))
-            arrayPixel.append(Pixel((x, y), frame[y, x]))
+            pixels_selectionnes.append((x, y))
+            array_pixel.append(Pixel((x, y), frame[y, x]))
             print(f"Pixel sélectionné : ({x}, {y}) avec valeur initiale : {frame[y, x]}")
             # Dessiner un cercle au pixel sélectionné
             cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
             cv2.imshow('Sélectionner Pixels', frame)
 
-    def selectionnerPixelAuto():
-        nonlocal pixelsSelectionnes, frame
-        for pixelAuto in pixelsSelectionnes:
+    def selectionner_pixel_auto():
+        nonlocal pixels_selectionnes, frame
+        for pixelAuto in pixels_selectionnes:
             x, y = pixelAuto
-            arrayPixel.append(Pixel((x, y), frame[y, x]))
+            array_pixel.append(Pixel((x, y), frame[y, x]))
             print(f"Pixel sélectionné : ({x}, {y}) avec valeur initiale : {frame[y, x]}")
 
     def changerY():
-        nonlocal pixelsSelectionnes
-        for i in range(len(pixelsSelectionnes)):
-            x, y = pixelsSelectionnes[i]
+        nonlocal pixels_selectionnes
+        for i in range(len(pixels_selectionnes)):
+            x, y = pixels_selectionnes[i]
             y = 1
-            pixelsSelectionnes[i] = (x, y)
+            pixels_selectionnes[i] = (x, y)
 
-    def pixelToNote():
-        nonlocal arrayPixel, gamme
+    def pixel_to_note():
+        nonlocal array_pixel, gamme
         compteur = commencement
-        for pixel in arrayPixel:
+        for pixel in array_pixel:
             nomNote = notes[compteur]
             pixel.note = nomNote + str(gamme)
             compteur += 1
@@ -90,15 +90,15 @@ def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombre
                 compteur = 0
                 gamme += 1
 
-    def calculerDiff(valeurPrecedente, valeurActuelle, compteurFrame):
+    def calculer_diff(valeurPrecedente, valeurActuelle, compteurFrame):
         r1, g1, b1 = valeurPrecedente
         r2, g2, b2 = valeurActuelle
         if (max(r1, r2) - min(r1, r2) > tolerence or max(g1, g2) - min(g1, g2) > tolerence or max(b1, b2) - min(b1,
-                                                                                                                b2) > tolerence) and compteurFrame > frameCible and compteurFrame < 7479:
+                                                                                                                b2) > tolerence) and compteurFrame > frame_cible and compteurFrame < 7479:
             return True
         return False
 
-    def trouverValeurProche(valeurEntree):
+    def trouver_valeur_proche(valeurEntree):
         # Définir les multiples
         multiple0_25 = 0.25
         multiple1_3 = 1 / 3
@@ -121,61 +121,61 @@ def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombre
         return round(valeurProche, 3)
 
     # Charger la vidéo
-    cap = cv2.VideoCapture(nomChanson)
+    cap = cv2.VideoCapture(nom_chanson)
 
     # Vérifier si la vidéo s'est ouverte correctement
     if not cap.isOpened():
         print("Erreur : Impossible d'ouvrir la vidéo.")
         return
 
-    tauxFps = cap.get(cv2.CAP_PROP_FPS)
-    print(f"Taux de rafraîchissement de la vidéo : {tauxFps} FPS")
+    taux_fps = cap.get(cv2.CAP_PROP_FPS)
+    print(f"Taux de rafraîchissement de la vidéo : {taux_fps} FPS")
 
     # Lire les frames jusqu'à la frame cible
-    compteurFrame = 0
-    frameCible = 140
+    compteur_frame = 0
+    frame_cible = 140
     frame = None
 
-    while compteurFrame < frameCible:
+    while compteur_frame < frame_cible:
         ret, frame = cap.read()
         if not ret:
             print("Erreur : Impossible de lire la frame.")
             return
-        compteurFrame += 1
+        compteur_frame += 1
 
-    if len(pixelsSelectionnes) > 0:
-        selectionnerPixelAuto()
+    if len(pixels_selectionnes) > 0:
+        selectionner_pixel_auto()
 
     # Afficher la frame cible et permettre à l'utilisateur de sélectionner des pixels
     cv2.imshow('Sélectionner Pixels', frame)
-    cv2.setMouseCallback('Sélectionner Pixels', selectionnerPixel)
+    cv2.setMouseCallback('Sélectionner Pixels', selectionner_pixel)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
     # Vérifier si des pixels ont été sélectionnés
-    if not pixelsSelectionnes:
+    if not pixels_selectionnes:
         print("Aucun pixel sélectionné. Sortie.")
         return
 
     # Dictionnaire pour stocker les valeurs RVB précédentes des pixels sélectionnés
-    valeursPrecedentes = {pixel: pixel.valeurInitiale for pixel in arrayPixel}
+    valeurs_precedentes = {pixel: pixel.valeur_initiale for pixel in array_pixel}
 
-    pixelToNote()
+    pixel_to_note()
 
     # Afficher chaque pixel et la note qui lui est attachée
-    for pixel in arrayPixel:
-        print(pixel.valeurInitiale)
+    for pixel in array_pixel:
+        print(pixel.valeur_initiale)
 
-    compteurFrame = 0
+    compteur_frame = 0
 
     # Réinitialiser la capture vidéo au début
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
-    noteApuuyerList = []
+    note_apuuyer_list = []
     # fluxMusical = stream.Score()
     # partieMusicale = stream.Part()
     #
-    # fluxMusical.insert(0, tempo.MetronomeMark(vraiBpmChanson))
+    # fluxMusical.insert(0, tempo.MetronomeMark(vrai_bpm_chanson))
 
     while True:
         ret, frame = cap.read()
@@ -183,31 +183,31 @@ def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombre
             break
 
         # Traiter chaque pixel sélectionné
-        for pixel in arrayPixel:
+        for pixel in array_pixel:
             x, y = pixel.coordonnee
-            valeurActuelle = frame[y, x]
-            valeurPrecedente = valeursPrecedentes[pixel]
+            valeur_actuelle = frame[y, x]
+            valeur_precedente = valeurs_precedentes[pixel]
 
-            changementtt = calculerDiff(pixel.valeurInitiale, valeurActuelle, compteurFrame)
+            changementtt = calculer_diff(pixel.valeur_initiale, valeur_actuelle, compteur_frame)
 
-            if len(pixel.framesChangement) % 2 == 0:
+            if len(pixel.frames_changement) % 2 == 0:
                 if changementtt:
-                    if frameCorrection == -1:
-                        frameCorrection = compteurFrame
-                    pixel.framesChangement.append(compteurFrame)
+                    if frame_correction == -1:
+                        frame_correction = compteur_frame
+                    pixel.frames_changement.append(compteur_frame)
                     print(
-                        f"Changement significatif détecté à la frame {compteurFrame} pour le pixel {pixel.note} : Diff RVB = {np.sum(np.abs(valeurActuelle - valeurPrecedente))}")
+                        f"Changement significatif détecté à la frame {compteur_frame} pour le pixel {pixel.note} : Diff RVB = {np.sum(np.abs(valeur_actuelle - valeur_precedente))}")
 
             else:
                 if not changementtt:
-                    if frameCorrection == -1:
-                        frameCorrection = compteurFrame
-                    pixel.framesChangement.append(compteurFrame)
+                    if frame_correction == -1:
+                        frame_correction = compteur_frame
+                    pixel.frames_changement.append(compteur_frame)
                     print(
-                        f"Changement significatif détecté à la frame {compteurFrame} pour le pixel {pixel.note} : Diff RVB = {np.sum(np.abs(valeurActuelle - valeurPrecedente))}")
+                        f"Changement significatif détecté à la frame {compteur_frame} pour le pixel {pixel.note} : Diff RVB = {np.sum(np.abs(valeur_actuelle - valeur_precedente))}")
 
             # Mettre à jour la valeur précédente
-            valeursPrecedentes[pixel] = valeurActuelle
+            valeurs_precedentes[pixel] = valeur_actuelle
 
         # Afficher la frame
         cv2.imshow('Frame', frame)
@@ -216,39 +216,39 @@ def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombre
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        compteurFrame += 1
-        print(f"Frame traitée {compteurFrame}")
+        compteur_frame += 1
+        print(f"Frame traitée {compteur_frame}")
 
     # Libérer l'objet de capture vidéo
     cv2.destroyAllWindows()
 
     # Afficher les numéros de frame où chaque pixel a changé
     print("\nFrames où chaque pixel a changé :")
-    for pixel in arrayPixel:
-        print(f"Pixel {pixel.note} a changé dans les frames : {pixel.framesChangement}")
+    for pixel in array_pixel:
+        print(f"Pixel {pixel.note} a changé dans les frames : {pixel.frames_changement}")
 
-    frameCorrectionSpecialiser = frameCorrection
+    frame_correctionSpecialiser = frame_correction
 
-    for pixel in arrayPixel:
-        noteApuuyerList.clear()
+    for pixel in array_pixel:
+        note_apuuyer_list.clear()
         compteur = 0
-        changement = pixel.framesChangement
+        changement = pixel.frames_changement
         print(pixel.note)
         for change in changement:
-            if len(noteApuuyerList) == 0:
-                noteApuuyerList.append(change)
-            elif len(noteApuuyerList) == 1:
-                noteApuuyerList.append(change)
-                noteEnSecondes = (noteApuuyerList[1] - noteApuuyerList[0]) / tauxFps
-                battement = noteEnSecondes * bpsChanson
-                valeurProche = trouverValeurProche(battement)
+            if len(note_apuuyer_list) == 0:
+                note_apuuyer_list.append(change)
+            elif len(note_apuuyer_list) == 1:
+                note_apuuyer_list.append(change)
+                note_en_secondes = (note_apuuyer_list[1] - note_apuuyer_list[0]) / taux_fps
+                battement = note_en_secondes * bpm_chanson
+                valeurProche = trouver_valeur_proche(battement)
                 # instanceNote = note.Note(pixel.note)
-                # instanceNote.quarterLength = valeurProche / valeurDeMultiplication
-                decalageEnSecondes = (noteApuuyerList[0] - frameCorrection) / tauxFps
-                decalageBattementEnSecondes = decalageEnSecondes * bpsChanson
-                valeurProcheDecalageEnSecondes = trouverValeurProche(decalageBattementEnSecondes)
-                # fluxMusical.coreInsert(valeurProcheDecalageEnSecondes / valeurDeMultiplication, instanceNote)
-                noteApuuyerList.clear()
+                # instanceNote.quarterLength = valeurProche / valeur_de_multiplication
+                decalage_en_secondes = (note_apuuyer_list[0] - frame_correction) / taux_fps
+                decalage_battement_en_secondes = decalage_en_secondes * bpm_chanson
+                valeur_proche_decalage_en_secondes = trouver_valeur_proche(decalage_battement_en_secondes)
+                # fluxMusical.coreInsert(valeur_proche_decalage_en_secondes / valeur_de_multiplication, instanceNote)
+                note_apuuyer_list.clear()
 
             compteur += 1
 
@@ -257,6 +257,6 @@ def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombre
     cv2.destroyAllWindows()
 
     print("Pixel sélectionné")
-    print(pixelsSelectionnes)
+    print(pixels_selectionnes)
 
     # fluxMusical.write('midi', fp='score1111.mid')

@@ -1,7 +1,7 @@
 from music21 import converter, interval, pitch, note, chord
 from copy import deepcopy
 
-def transposer_midi(chemin):
+def transposer_midi(chemin,hauteur_cible_utilisateur):
     """
     Fonction principale pour charger un fichier MIDI, le transposer dans une tonalité définie par l'utilisateur,
     et sauvegarder la version transposée.
@@ -9,6 +9,9 @@ def transposer_midi(chemin):
 
     # Définir le chemin vers votre fichier MIDI
     chemin_midi = chemin
+
+    # Nouvelle Gamme
+    hauteur_cible = hauteur_cible_utilisateur
 
     # Charger le fichier MIDI original
     try:
@@ -19,18 +22,6 @@ def transposer_midi(chemin):
 
     # Faire une copie profonde du flux avant de le modifier
     flux_transpose = deepcopy(flux_original)
-
-    # Demander à l'utilisateur la tonalité cible avec une boucle de réessai
-    hauteur_cible = None
-    while hauteur_cible is None:
-        try:
-            nom_tonalite_cible = input("Entrez la tonalité cible (par exemple, C, D#, F mineur, g mineur) : ").strip()
-            if not nom_tonalite_cible:
-                raise ValueError("L'entrée ne peut pas être vide.")
-            hauteur_cible = pitch.Pitch(nom_tonalite_cible)
-        except Exception as e:
-            print(f"\n   Entrée invalide : {e}")
-            print("Veuillez entrer une note ou une tonalité musicale valide (comme 'C', 'D#', 'g mineur').\n")
 
     # Essayer d'analyser la tonalité originale de la pièce
     try:
@@ -58,17 +49,10 @@ def transposer_midi(chemin):
 
     # Sauvegarder le flux transposé en tant que nouveau fichier MIDI
     try:
-        midi_sortie = f"transpose_vers_{nom_tonalite_cible}.mid"
+        midi_sortie = f"transpose_vers_nouvelle_tonalite.mid"
         flux_transpose.write('midi', fp=midi_sortie)
         print(f"\n MIDI transposé sauvegardé sous le nom '{midi_sortie}'")
     except Exception as e:
         print(f"  Erreur lors de la sauvegarde du fichier : {e}")
 
-    # Optionnel : Afficher la partition transposée visuellement en utilisant le visualiseur de music21
-    try:
-        afficher_partition = input("Souhaitez-vous voir la partition transposée ? (o/n) : ").lower()
-        if afficher_partition == 'o':
-            flux_transpose.show()
-    except Exception as e:
-        print(f"  Erreur lors de l'affichage de la partition : {e}")
 
