@@ -8,169 +8,164 @@ from music21 import *
 import moviepy.editor as mp
 from scipy.signal import find_peaks, butter, filtfilt, medfilt
 
-def extraire_audio(nomVideo, cheminFichier, nomFichier):
-    """Extraire l'audio de la vidéo et l'enregistrer sous forme de fichier MP3."""
+# Constantes
+longueurFft = 2048
+recouvrement = 0.5
+
+def extraire_audio(nomVideo, nomFichier):
+    # Extraire l'audio de la vidéo et l'enregistrer sous forme de fichier MP3
     video = mp.VideoFileClip(nomVideo)
     video.audio.write_audiofile(nomFichier)
 
-def charger_fichier_audio(nomFichier, frequenceEchantillonnage=44100):
-    """Charger le fichier audio et retourner le signal audio et la fréquence d'échantillonnage."""
-    if not os.path.exists(nomFichier):
-        raise FileNotFoundError(f"Erreur : le fichier '{nomFichier}' n'existe pas.")
-    return librosa.load(nomFichier, sr=frequenceEchantillonnage)
+def charger_fichier_audio(nom_fichier, frequence_echantillonnage=44100):
+    # Charger le fichier audio et retourner le signal audio et la fréquence d'échantillonnage
+    if not os.path.exists(nom_fichier):
+        raise FileNotFoundError(f"Erreur : le fichier '{nom_fichier}' n'existe pas.")
+    return librosa.load(nom_fichier, sr=frequence_echantillonnage)
 
-def detecter_tempo(signalAudio, frequenceEchantillonnage):
-    """Détecter le tempo du morceau audio."""
+def detecter_tempo(signal_audio, frequence_echantillonnage):
+    # Détecter le tempo
 
-    tempo, framesBattements = librosa.beat.beat_track(y=signalAudio, sr=frequenceEchantillonnage)
+    tempo, frames_battements = librosa.beat.beat_track(y=signal_audio, sr=frequence_echantillonnage)
     tempo = tempo.item()
     tempo = int(2 * round(tempo / 2))  # Arrondi au nombre pair le plus proche
     return MetronomeMark(referent='quarter', number=tempo)
 
-def butter_lowpass(cutoff, fs, order=5):
-    """Conception d'un filtre passe-bas Butterworth."""
+def butter_passe_bas(cutoff, fs, order=5):
+    # Application d'un filtre passe-bas Butterworth.
     nyquist = 0.5 * fs
     normal_cutoff = cutoff / nyquist
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return b, a
 
-def lowpass_filter(data, cutoff, fs, order=5):
-    """Application d'un filtre passe-bas."""
-    b, a = butter_lowpass(cutoff, fs, order=order)
+def filtre_pass_bas(data, cutoff, fs, order=5):
+    # Application d'un filtre passe-bas.
+    b, a = butter_passe_bas(cutoff, fs, order=order)
     y = filtfilt(b, a, data)
     return y
 
 def appliquer_filtres(signalAudio, frequenceEchantillonnage, cutoff_frequency=4186, kernel_size=5):
-    """Appliquer les filtres passe-bas et médian au signal audio."""
-    filtered_signal = lowpass_filter(signalAudio, cutoff_frequency, frequenceEchantillonnage)
-    filtered_signal = medfilt(filtered_signal, kernel_size=kernel_size)
-    return filtered_signal
+    # Appliquer les filtres
+    signal_filtre = filtre_pass_bas(signalAudio, cutoff_frequency, frequenceEchantillonnage)
+    signal_filtre = medfilt(signal_filtre, kernel_size=kernel_size)
+    return signal_filtre
 
-def estimer_hauteur(filtered_signal, frequenceEchantillonnage, longueurFft, longueurSaut, seuilDb):
-    """Estimer la hauteur (pitch) pour chaque trame du signal audio."""
-    D = librosa.stft(filtered_signal, n_fft=longueurFft, hop_length=longueurSaut)
-    magnitudeDb = librosa.amplitude_to_db(np.abs(D), ref=np.max)
-    frequences = librosa.fft_frequencies(sr=frequenceEchantillonnage, n_fft=longueurFft)
+def estimer_hauteur(signal_filtre, frequence_echantillonnage, longueurFft, longueur_saut, seuil_db):
+    # Estimer la hauteur pour chaque trame du signal audio.
+    D = librosa.stft(signal_filtre, n_fft=longueurFft, hop_length=longueur_saut)
+    magnitude_db = librosa.amplitude_to_db(np.abs(D), ref=np.max)
+    frequences = librosa.fft_frequencies(sr=frequence_echantillonnage, n_fft=longueurFft)
 
-    estimationPitch = []
-    for i in range(magnitudeDb.shape[1]):
-        peaks, _ = find_peaks(magnitudeDb[:, i], height=seuilDb)
-        estimationPitch.append(peaks)
+    estimation_pitch = []
+    for i in range(magnitude_db.shape[1]):
+        peaks, _ = find_peaks(magnitude_db[:, i], height=seuil_db)
+        estimation_pitch.append(peaks)
 
-    return estimationPitch, frequences, magnitudeDb
+    return estimation_pitch, frequences, magnitude_db
 
-def pitchVersNote(pitch, frequences):
-    """Convertir une fréquence en nom de note."""
+def pitch_vers_note(pitch):
+    # Convertir une fréquence en nom de note.
     if pitch <= 0:
         return 'silence'
-    noteMidi = librosa.hz_to_midi(pitch)
-    nomNote = librosa.midi_to_note(noteMidi)
-    return nomNote.replace('♯', '#').replace('♭', 'b')
+    note_midi = librosa.hz_to_midi(pitch)
+    nom_note = librosa.midi_to_note(note_midi)
+    return nom_note.replace('♯', '#').replace('♭', 'b')
 
-def creer_partition(estimationPitch, frequences, frequenceEchantillonnage, longueurFft, longueurSaut):
-    """Créer une partition musicale à partir des hauteurs estimées."""
-    notesDetectees = [[pitchVersNote(frequences[p], frequences) for p in frame] for frame in estimationPitch]
-    partitionMusicale = stream.Score()
-    partieMusicale = stream.Part()
-    partieMusicale.append(metadata.Metadata(title='Transcription Audio', composer='Transcription Automatique'))
+def creer_partition(estimation_pitch, frequences, frequence_echantillonnage, longueurFft):
+    # Créer une partition musicale à partir des peaks estimées.
+    notes_detectees = [[pitch_vers_note(frequences[p]) for p in frame] for frame in estimation_pitch]
+    partition_musicale = stream.Score()
+    partie_musicale = stream.Part()
+    partie_musicale.append(metadata.Metadata(title='Transcription Audio', composer='Transcription Automatique'))
 
-    notesActuelles = set()
-    compteurNotes = {}
-    dureeTrame = longueurFft * 0.5 / frequenceEchantillonnage
-    dureeMinimale = 0.125
+    notes_actuelles = set()
+    compteur_notes = {}
+    duree_trame = longueurFft * 0.5 / frequence_echantillonnage
+    duree_minimale = 0.125
 
-    for i, trameNotes in enumerate(notesDetectees):
-        decalageTemps = i * dureeTrame
+    for i, trame_notes in enumerate(notes_detectees):
+        decalage_temps = i * duree_trame
 
-        notesTerminees = notesActuelles - set(trameNotes)
-        for noteTerminee in notesTerminees:
-            dureeNote = compteurNotes.pop(noteTerminee, 0) * dureeTrame
-            if dureeNote > 0:
-                if noteTerminee == 'silence':
-                    noteSilence = note.Rest(quarterLength=max(dureeNote, dureeMinimale))
-                    partieMusicale.insert(decalageTemps - dureeNote, noteSilence)
+        notes_terminees = notes_actuelles - set(trame_notes)
+        for note_terminee in notes_terminees:
+            duree_note = compteur_notes.pop(note_terminee, 0) * duree_trame
+            if duree_note > 0:
+                if note_terminee == 'silence':
+                    note_silence = note.Rest(quarterLength=max(duree_note, duree_minimale))
+                    partie_musicale.insert(decalage_temps - duree_note, note_silence)
                 else:
-                    noteMusicale = note.Note(noteTerminee)
-                    noteMusicale.quarterLength = max(dureeNote, dureeMinimale)
-                    partieMusicale.insert(decalageTemps - dureeNote, noteMusicale)
+                    note_musicale = note.Note(note_terminee)
+                    note_musicale.quarterLength = max(duree_note, duree_minimale)
+                    partie_musicale.insert(decalage_temps - duree_note, note_musicale)
 
-        nouvellesNotes = set(trameNotes) - notesActuelles
-        for nouvelleNote in nouvellesNotes:
-            compteurNotes[nouvelleNote] = 0
+        nouvelles_notes = set(trame_notes) - notes_actuelles
+        for nouvelle_note in nouvelles_notes:
+            compteur_notes[nouvelle_note] = 0
 
-        for noteActive in notesActuelles.intersection(trameNotes):
-            compteurNotes[noteActive] += 1
+        for note_active in notes_actuelles.intersection(trame_notes):
+            compteur_notes[note_active] += 1
 
-        notesActuelles = set(trameNotes)
+        notes_actuelles = set(trame_notes)
 
-        if not trameNotes:
-            noteSilence = note.Rest(quarterLength=dureeMinimale)
-            partieMusicale.insert(decalageTemps, noteSilence)
+        if not trame_notes:
+            note_silence = note.Rest(quarterLength=duree_minimale)
+            partie_musicale.insert(decalage_temps, note_silence)
 
-    if len(partieMusicale.notesAndRests) > 0:
-        partitionMusicale.append(partieMusicale)
-        cheminMidi = 'partition0010.mid'
-        partitionMusicale.write('midi', fp=cheminMidi)
-        print(f"Fichier MIDI écrit à {cheminMidi}")
+    if len(partie_musicale.notesAndRests) > 0:
+        partition_musicale.append(partie_musicale)
+        chemin_midi = 'partition0010.mid'
+        partition_musicale.write('midi', fp=chemin_midi)
+        print(f"Fichier MIDI écrit à {chemin_midi}")
     else:
         print("Erreur : aucune note ou silence trouvé dans la partition.")
 
-def visualiser_spectrogramme(magnitudeDb, frequenceEchantillonnage, longueurSaut, estimationPitch, filtered_signal):
-    plt.figure(figsize=(12, 6))
-    librosa.display.specshow(magnitudeDb, sr=frequenceEchantillonnage, hop_length=longueurSaut, x_axis='time',
+def visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_saut, estimation_pitch, filtered_signal):
+    # spectogramme
+    plt.figure(figsize=(15, 5))
+    librosa.display.specshow(magnitude_db, sr=frequence_echantillonnage, hop_length=longueur_saut, x_axis='temps',
                              y_axis='log')
     plt.colorbar(format='%+2.0f dB')
     plt.title('Spectrogramme avec Pics Détectés')
 
     # Tracer les pics détectés
-    for i, peaks in enumerate(estimationPitch):
+    for i, peaks in enumerate(estimation_pitch):
         for peak in peaks:
-            plt.plot(i * longueurSaut / frequenceEchantillonnage,
-                     librosa.fft_frequencies(sr=frequenceEchantillonnage)[peak], 'ro')
+            plt.plot(i * longueur_saut / frequence_echantillonnage,
+                     librosa.fft_frequencies(sr=frequence_echantillonnage)[peak], 'ro')
 
     plt.tight_layout()
     plt.show()
-    plt.figure(figsize=(12, 6))
-    librosa.display.specshow(magnitudeDb, sr=frequenceEchantillonnage, hop_length=longueurSaut, x_axis='time',
+    plt.figure(figsize=(15, 5))
+    librosa.display.specshow(magnitude_db, sr=frequence_echantillonnage, hop_length=longueur_saut, x_axis='temps',
                              y_axis='log')
-    plt.figure(figsize=(12, 4))
-    librosa.display.waveshow(filtered_signal, sr=frequenceEchantillonnage)
+    # forme d'onde
+    plt.figure(figsize=(15, 5))
+    librosa.display.waveshow(filtered_signal, sr=frequence_echantillonnage)
     plt.title('Forme d\'onde du signal audio filtré')
     plt.tight_layout()
     plt.show()
-
+    # Le chromagram
     hop_length = 512
-    chromagram = librosa.feature.chroma_cqt(y=filtered_signal, sr=frequenceEchantillonnage, hop_length=hop_length)
+    chromagram = librosa.feature.chroma_cqt(y=filtered_signal, sr=frequence_echantillonnage, hop_length=hop_length)
 
 
     plt.figure(figsize=(15, 5))
-    librosa.display.specshow(chromagram, x_axis='time', y_axis='chroma', hop_length=hop_length, cmap='coolwarm')
+    librosa.display.specshow(chromagram, x_axis='temps', y_axis='chroma', hop_length=hop_length, cmap='coolwarm')
     plt.colorbar()
     plt.title('Chromagram')
     plt.tight_layout()
     plt.show()
 
 
-def main(nomVideo, cheminFichier, nomFichier, longueurFft, recouvrement, seuilDb):
+def main(nom_video, nom_fichier, seuil_db):
     # Fonction principale pour exécuter le processus de transcription audio
-    extraire_audio(nomVideo, cheminFichier, nomFichier)
-    signalAudio, frequenceEchantillonnage = charger_fichier_audio(nomFichier)
-    tempo = detecter_tempo(signalAudio, frequenceEchantillonnage)
-    print(f"Tempo détecté : {tempo}")
-
-    longueurSaut = int(longueurFft * (1 - recouvrement))
-    filtered_signal = appliquer_filtres(signalAudio, frequenceEchantillonnage)
-    estimationPitch, frequences, magnitudeDb = estimer_hauteur(filtered_signal, frequenceEchantillonnage, longueurFft, longueurSaut, seuilDb)
-    creer_partition(estimationPitch, frequences, frequenceEchantillonnage, longueurFft, longueurSaut)
-    visualiser_spectrogramme(magnitudeDb, frequenceEchantillonnage, longueurSaut, estimationPitch, filtered_signal)
-
-# Exemple d'utilisation
-nomVideo = r"C:\Users\TheBr\Downloads\Yiruma_-_River_Flows_In_You_Intermediate_Piano_Tutorial.mp4"
-cheminFichier = r"C:\Users\TheBr\Downloads"
-nomFichier = os.path.join(cheminFichier, "versionAudio.mp3")
-longueurFft = 2048
-recouvrement = 0.5
-seuilDb = -15
+    extraire_audio(nom_video, nom_fichier)
+    signal_audio, frequence_echantillonnage = charger_fichier_audio(nom_fichier)
+    tempo = detecter_tempo(signal_audio, frequence_echantillonnage)
 
 
-main(nomVideo, cheminFichier, nomFichier, longueurFft, recouvrement, seuilDb)
+    longueur_saut = int(longueurFft * (1 - recouvrement))
+    signal_filtre = appliquer_filtres(signal_audio, frequence_echantillonnage)
+    estimation_pitch, frequences, magnitude_db = estimer_hauteur(signal_filtre, frequence_echantillonnage, longueurFft, longueur_saut, seuil_db)
+    creer_partition(estimation_pitch, frequences, frequence_echantillonnage, longueurFft)
+    visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_saut, estimation_pitch, signal_filtre)
