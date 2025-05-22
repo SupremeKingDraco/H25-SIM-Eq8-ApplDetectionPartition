@@ -157,7 +157,7 @@ def visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_s
     plt.show()
 
 
-def main(path_video, path_fichier_audio, seuil_db):
+def main(path_video, seuil_db,path_fichier_audio,):
     # Fonction principale pour exécuter le processus de transcription audio
     extraire_audio(path_video, path_fichier_audio)
     signal_audio, frequence_echantillonnage = charger_fichier_audio(path_fichier_audio)
@@ -172,4 +172,4 @@ def main(path_video, path_fichier_audio, seuil_db):
 
 
 
-main(r"C:\Users\TheBr\Downloads\videoplayback.mp4", r"C:\Users\TheBr\Downloads\versionAudio.mp3", -20)
+main(r"C:\Users\TheBr\Downloads\videoplayback.mp4",  -20,r"C:\Users\TheBr\Downloads\versionAudio.mp3",)
