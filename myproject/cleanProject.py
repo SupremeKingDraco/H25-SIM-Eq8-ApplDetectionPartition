@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
-from music21 import *
+# from music21 import *
 
 
-def process_video_and_generate_midi(nomChanson, vraiBpmChanson, notes, commencement, gamme,  pixelsSelectionnes):
+def process_video_and_generate_midi(nomChanson: str, vraiBpmChanson: int, nombreArmure: int, commencement: int, gamme: int,  pixelsSelectionnes=[(10, 291), (36, 251), (51, 293), (65, 293), (92, 242), (114, 243), (124, 292), (139, 289), (168, 247), (179, 293), (198, 292), (222, 247), (244, 252), (256, 297), (274, 289), (299, 254), (311, 294), (329, 291), (357, 257), (376, 253), (384, 291), (403, 286), (432, 248), (442, 289), (462, 290), (488, 257), (508, 259), (518, 291), (538, 292), (562, 254), (574, 288), (592, 292), (617, 254)]):
     """
     This function processes a video to detect pixel changes and generates a MIDI file.
 
@@ -25,6 +25,27 @@ def process_video_and_generate_midi(nomChanson, vraiBpmChanson, notes, commencem
     frameCorrection = -1
     bpmChanson = vraiBpmChanson * valeurDeMultiplication
     bpsChanson = bpmChanson / 60
+    notes = ["C", "D", "E", "F", "G", "A", "B"]
+
+    ordre_des_dieses = ["F#", "C#", "G#", "D#", "A#", "E#", "B#"]
+    ordre_des_bemols = ["F-", "C-", "G-", "D-", "A-", "E-", "B-"]
+
+    if nombreArmure > 0:
+        a_modifier = ordre_des_dieses[:nombreArmure]
+        for acc in a_modifier:
+            note_base = acc[0]
+            index = notes.index(note_base)
+            notes[index] = acc
+    elif nombreArmure < 0:
+        nombreArmure = abs(nombreArmure)
+        a_modifier = ordre_des_bemols[:nombreArmure]
+        for acc in a_modifier:
+            note_base = acc[0]
+            index = notes.index(note_base)
+            notes[index] = acc
+
+    print("Notes modifiées :", notes)
+
 
     class Pixel:
         def __init__(self, coordonnee, valeurInitiale):
@@ -151,10 +172,10 @@ def process_video_and_generate_midi(nomChanson, vraiBpmChanson, notes, commencem
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     noteApuuyerList = []
-    fluxMusical = stream.Score()
-    partieMusicale = stream.Part()
-
-    fluxMusical.insert(0, tempo.MetronomeMark(vraiBpmChanson))
+    # fluxMusical = stream.Score()
+    # partieMusicale = stream.Part()
+    #
+    # fluxMusical.insert(0, tempo.MetronomeMark(vraiBpmChanson))
 
     while True:
         ret, frame = cap.read()
@@ -221,12 +242,12 @@ def process_video_and_generate_midi(nomChanson, vraiBpmChanson, notes, commencem
                 noteEnSecondes = (noteApuuyerList[1] - noteApuuyerList[0]) / tauxFps
                 battement = noteEnSecondes * bpsChanson
                 valeurProche = trouverValeurProche(battement)
-                instanceNote = note.Note(pixel.note)
-                instanceNote.quarterLength = valeurProche / valeurDeMultiplication
+                # instanceNote = note.Note(pixel.note)
+                # instanceNote.quarterLength = valeurProche / valeurDeMultiplication
                 decalageEnSecondes = (noteApuuyerList[0] - frameCorrection) / tauxFps
                 decalageBattementEnSecondes = decalageEnSecondes * bpsChanson
                 valeurProcheDecalageEnSecondes = trouverValeurProche(decalageBattementEnSecondes)
-                fluxMusical.coreInsert(valeurProcheDecalageEnSecondes / valeurDeMultiplication, instanceNote)
+                # fluxMusical.coreInsert(valeurProcheDecalageEnSecondes / valeurDeMultiplication, instanceNote)
                 noteApuuyerList.clear()
 
             compteur += 1
@@ -238,4 +259,4 @@ def process_video_and_generate_midi(nomChanson, vraiBpmChanson, notes, commencem
     print("Pixel sélectionné")
     print(pixelsSelectionnes)
 
-    fluxMusical.write('midi', fp='score1111.mid')
+    # fluxMusical.write('midi', fp='score1111.mid')

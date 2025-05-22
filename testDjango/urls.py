@@ -8,4 +8,6 @@ urlpatterns = [
     path('detection/', views.detection, name='detection'),
     path('bouttonTest/', views.bouttonTest, name='bouttonTest'),
 
+    path('detection-api/', views.detectionApi, name="detectionApi")
+
 ]

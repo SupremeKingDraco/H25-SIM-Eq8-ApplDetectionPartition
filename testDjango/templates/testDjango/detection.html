@@ -78,7 +78,7 @@
     if (treatmentType === "audio") {
         tagName = ["Selectionner le seuil de décibel. (recommander entre -40 et -10)"];
     } else if (treatmentType === "image") {
-        tagName = ["bpm", "nombre bemole/ diez", "premiere note ex: La","premiere octave ex: 4"];
+        tagName = ["bpm", "nombre bemole/ diez", "premiere note ex: Do=0 La=5","premiere octave ex: 4"];
     }
 
     // Crée le nombre spécifié de champs d'entrée
@@ -173,9 +173,18 @@
    * @param {string} selectedTreatment - Type de traitement sélectionné (image ou audio)
    */
   function processData(userInput, dynamicInputs, selectedTreatment) {
+    const parsedDynamicInputs = [];
+
     console.log("Traitement sélectionné:", selectedTreatment);
     console.log("Données utilisateur:", userInput);
     console.log("Données dynamiques:", Array.from(dynamicInputs).map(input => input.value));
+
+    dynamicInputs.forEach((element) => {
+        parsedDynamicInputs.push(element.value);
+    });
+
+    console.log(parsedDynamicInputs);
+
 
     // Vous pouvez ajouter ici la logique spécifique au traitement sélectionné
     if (selectedTreatment === "image") {
@@ -183,6 +192,23 @@
     } else if (selectedTreatment === "audio") {
       console.log("Traitement de l'audio...");
     }
+
+    const params = {
+        method:"POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            userInput: userInput,
+            parsedDynamicInputs: parsedDynamicInputs,
+            selectedTreatment: selectedTreatment,
+        }),
+    }
+
+    console.log(params);
+    fetch("/detection-api/", params).then((response) => {
+        console.log(response);
+    });
   }
 
   // Ajoute un écouteur d'événements au bouton de soumissions
