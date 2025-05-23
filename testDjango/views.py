@@ -6,9 +6,9 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
-# from myproject.cleanProject import process_video_and_generate_midi
-# from myproject.transcriptionAudioV4 import transcrire_audio
-# from myproject.transposePiece import transposer_midi
+from myproject.cleanProject import process_video_and_generate_midi
+from myproject.transcriptionAudioV4 import transcrire_audio
+from myproject.transposePiece import transposer_midi
 
 
 #Create your views here.
