@@ -6,24 +6,29 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
-from myproject.cleanProject import process_video_and_generate_midi
-from myproject.transcriptionAudioV4 import transcrire_audio
-from myproject.transposePiece import transposer_midi
+# from myproject.cleanProject import process_video_and_generate_midi
+# from myproject.transcriptionAudioV4 import transcrire_audio
+# from myproject.transposePiece import transposer_midi
 
 
 #Create your views here.
-def home(request):
-    return render(request, 'testDjango/home.html', {})
+# def home(request):
+#     return render(request, 'testDjango/home.html', {})
+#
+# def about(request):
+#     return render(request, 'testDjango/about.html', {})
+#
+# def check(request):
+#     return render(request, 'testDjango/check.html', {})
+# def bouttonTest(request):
+#     return render(request, 'testDjango/bouttonTest.html', {})
 
-def about(request):
-    return render(request, 'testDjango/about.html', {})
 
-def check(request):
-    return render(request, 'testDjango/check.html', {})
 def detection(request):
     return render(request, 'testDjango/detection.html', {})
-def bouttonTest(request):
-    return render(request, 'testDjango/bouttonTest.html', {})
+def information(request):
+    return render(request, 'testDjango/information.html', {})
+
 
 @csrf_exempt
 def detectionApi(request):

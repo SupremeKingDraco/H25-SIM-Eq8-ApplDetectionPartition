@@ -3,62 +3,46 @@
 
 <html lang="fr">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/traducteurPage.css' %}">
-    <script src="{% static 'js/main.js' %}" defer></script>
-    <!-- Bouton Fixe -->
-    <button class="fixed-button">Partition</button>
-    <style>
-        #display-area {
-            background-color: white;
-            padding: 20px;
-            margin-top: 20px;
-            color: black; /* Assure que le texte est en noir */
-        }
-        #input-data {
-            white-space: pre-wrap; /* Préserve les espaces et les retours à la ligne */
-            word-wrap: break-word; /* Coupe les mots longs */
-        }
-    </style>
+     <script src="{% static 'js/main.js' %}" defer></script>
 </head>
 <body>
 
-<!-- Arrière-plan Vidéo -->
-<div class="video-background">
-  <video autoplay muted loop>
-    <source src="{% static 'image/web page final background.mp4' %}" type="video/mp4">
-    Votre navigateur ne supporte pas la balise vidéo.
-  </video>
+<div class="video-bg">
+    <video autoplay muted loop>
+        <source src="{% static 'image/web page final background.mp4' %}" type="video/mp4">
+    </video>
 </div>
 
-<div style="background-color: rgba(0, 0, 0, 0.8); width: 1300px;height: 700px;">
-    <h3> Convertisseur video youtube à partition de piano</h3>
+<button class="floating-btn">Information</button>
 
-    <label for="userInput">Entrez le absolute path de la chanson :</label>
-    <input type="text" id="userInput" name="userInput" placeholder="Tapez ici...">
-    <hr>
-    <p class="btn-group">
-        <button style="width:33%" id="button1" onclick="handleButtonClick(4, 'image')">Traitement image</button>
-        <button style="width:33%" id="button2" onclick="handleButtonClick(2, 'audio')">Traitement audio</button>
-        <button style="width:33%" id="button3" onclick="handleButtonClick(1, 'transpose')">Transpose</button>
-    </p>
-    <!-- Conteneur pour les champs d'entrée dynamiques -->
+<div class="main-card">
+    <h3>YouTube to Piano Sheet Music</h3>
+
+    <div class="input-group">
+        <label for="userInput">Audio File Path</label>
+        <input type="text" id="userInput" placeholder="Paste absolute path...">
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-primary" onclick="handleButtonClick(4, 'image')">Image</button>
+        <button class="btn-primary" onclick="handleButtonClick(2, 'audio')">Audio</button>
+        <button class="btn-secondary" onclick="handleButtonClick(1, 'transpose')">Transpose</button>
+    </div>
+
     <div id="dynamic-inputs" class="input-container"></div>
-</div>
 
-<!-- Zone d'affichage pour les données d'entrée -->
-<div id="display-area">
-    <h4>Données d'entrée :</h4>
-    <pre id="input-data"></pre>
-</div>
+<!--    Juste pour debug pour voir si l'information est recu-->
+<!--    <div id="display-area">-->
+<!--        <pre id="input-data">Waiting for input...</pre>-->
+<!--    </div>-->
 
-<!-- Bouton de Soumission -->
-<button id="submitButton">Soumettre</button>
+    <button id="submitButton">Process</button>
+</div>
 
 <script>
   let treatmentSelected = false;

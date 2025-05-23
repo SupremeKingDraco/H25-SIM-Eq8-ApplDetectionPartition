@@ -1,146 +1,193 @@
-*{
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-}
-div{
-place-content: top;
-text-align: center;
-color: white;
-padding: 20px;
-margin: 00px; /* Adds spacing outside the div */
-}
+ :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-body {
-    min-height: 100vh;
-    display: grid;
-    place-content: space-evenly;
-    font-size: 3rem;
-    background: black
-    background-size: cover; /* Scale the image to cover the container */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Prevent the image from repeating */
-    color: black;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-}
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: var(--light);
+            padding: 1rem;
+        }
 
-h3,p {
-    text-align: center;
-    margin-bottom: 40px; /* Adds 40 pixels of space below the heading */
-    margin-top: 20px;
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
 
-}
+        .video-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-/* Button group styling */
-.btn-group button {
-  justify-content: center;
-  align-items: center;
-  background-color: #04AA6D; /* Green background */
-  border: 1px solid green; /* Green border */
-  color: white; /* White text */
-  padding: 10px 24px; /* Some padding */
-  cursor: pointer; /* Pointer/hand icon */
-  float: left; /* Float the buttons side by side */
-  margin-right: 0%; /* Add spacing between buttons */
-}
+        .main-card {
+            width: 100%;
+            max-width: 500px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+            letter-spacing: 0.5px;
+        }
 
+        .input-group {
+            margin-bottom: 1rem;
+        }
 
-/* Clear floats (clearfix hack) */
-.btn-group:after {
-  content: "";
-  clear: both;
-  display: table;
-}
+        label {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
 
-.btn-group button:not(:last-child) {
-  border-right: none; /* Prevent double borders */
-}
+        input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
 
-/* Add a background color on hover */
-.btn-group button:hover {
-  background-color: #3e8e41;
-}
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
 
-/* Fullscreen container for the video */
-.video-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: -1; /* Ensure it stays behind other content */
-}
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
 
-/* Style the video element */
-.video-background video {
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  object-fit: cover; /* Ensures the video covers the entire area */
-}
+        button {
+            padding: 0.6rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-ul.breadcrumb li {display: inline;}
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
 
-ul.breadcrumb li+li:before {
-  padding: 8px;
-  color: black;
-  content: "/\00a0";
-}
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
 
-.fixed-button {
-  position: fixed; /* Stays in place during scroll */
-  top: 20px;       /* Distance from the top */
-  right: 20px;     /* Distance from the right */
-  padding: 20px 20px;
-  border-radius: 1000px;
-  width: 100px;  /* Fixed width */
-  height: 100px; /* Fixed height */
-  background-color: white;
-  color: black;
-  border: 2px solid #000000; /* Couleur bordure */
-  border-radius: 500px;
-  cursor: pointer;
-  z-index: 1000;   /* Ensures it stays above other content */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
 
-/* Hover Effect */
-.fixed-button:hover {
-  background-color: #3386ff; /* Green */
-  color: black;
-}
+        .btn-secondary:hover {
+            background: #0d9f6e;
+            transform: translateY(-1px);
+        }
 
+        .input-container {
+            margin: 1rem 0;
+        }
 
-input[type="text"] {
-  width: 60%; /* Makes the input field wider */
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box; /* Ensures padding is included in the width */
-}
+        .dynamic-input {
+            margin-bottom: 0.5rem;
+        }
 
-/* Input fields container */
-    .input-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px; /* Space between input fields */
-      margin-top: 20px;
-    }
+        #display-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
 
-    /* Input field styling */
-    .input-container input {
-      width: 400px; /* Width of each input field */
-      height: 30px;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+        #submitButton {
+            width: 100%;
+            margin-top: 1rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.7rem;
+            font-weight: 500;
+        }
+
+        #submitButton:hover {
+            background: var(--primary-dark);
+        }
+
+        .floating-btn {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1) translateY(-2px);
+            background: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 500px) {
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+
+            .main-card {
+                padding: 1rem;
+            }
+        }

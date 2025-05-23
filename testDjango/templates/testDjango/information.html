@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+     <script src="{% static 'js/retourAuMain.js' %}" defer></script>
+    <style>
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .boite-explication {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: scale(0.95);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boite-explication::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: boite-anime 6s infinite;
+        }
+
+        @keyframes boite-anime {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+
+        .boite-explication:hover {
+            transform: scale(1);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        p {
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        .floating-btn {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1) translateY(-2px);
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<button class="floating-btn">Détection</button>
+
+    <div class="boite-explication">
+        <h1>Explication</h1>
+        <p>
+            Entrez le chemin absolu de votre vidéo et sélectionnez le mode de transcription souhaité.
+        </p>
+        <p>
+            Pour la transcription image : après avoir renseigné les paramètres, la vidéo s’affichera. Sélectionnez manuellement
+            les notes à transcrire. Pour la sélection manuelle, faites en sorte de sélectionner, depuis la première note que vous avez mentionnée,
+            uniquement les notes jouées. Cela veut dire que si la partition de musique contient un FA#, on ne sélectionne pas le FA naturel,
+            mais seulement la touche noire. Puis appuyez sur Q pour valider.
+        </p>
+        <p>
+            Pour les autres méthodes (audio ou transposition), complétez les champs requis et cliquez sur Soumettre pour générer la partition.
+        </p>
+    </div>
+</body>
+</html>
