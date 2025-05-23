@@ -49,7 +49,7 @@ def transposer_midi(chemin,hauteur_cible_utilisateur):
 
     # Sauvegarder le flux transposé en tant que nouveau fichier MIDI
     try:
-        midi_sortie = f"transpose_vers_nouvelle_tonalite.mid"
+        midi_sortie = f"transpose_vers_nouvelle_tonalite_"+hauteur_cible_utilisateur+".mid"
         flux_transpose.write('midi', fp=midi_sortie)
         print(f"\n MIDI transposé sauvegardé sous le nom '{midi_sortie}'")
     except Exception as e:

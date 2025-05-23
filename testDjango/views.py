@@ -1,5 +1,4 @@
-#from django.http import HttpResponse
-#from myproject.myproject.cleanProject import process_video_and_generate_midi
+from django.http import HttpResponse
 from sqlite3.dbapi2 import paramstyle
 
 from django.http import JsonResponse
@@ -7,7 +6,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
 from myproject.cleanProject import process_video_and_generate_midi
-from myproject.transcriptionAudioV4 import transcrire_audio
+from myproject.transcripitionAudioV4 import transcrire_audio
 from myproject.transposePiece import transposer_midi
 
 
