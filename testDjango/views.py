@@ -1,17 +1,17 @@
-# from django.http import HttpResponse
-# from myproject.myproject.cleanProject import process_video_and_generate_midi
+#from django.http import HttpResponse
+#from myproject.myproject.cleanProject import process_video_and_generate_midi
 from sqlite3.dbapi2 import paramstyle
 
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
-from myproject.cleanProject import process_video_and_generate_midi
-# from myproject.transcriptionAudioV4 import main
+# from myproject.cleanProject import process_video_and_generate_midi
+# from myproject.transcriptionAudioV4 import transcrire_audio
 # from myproject.transposePiece import transposer_midi
 
 
-# Create your views here.
+#Create your views here.
 def home(request):
     return render(request, 'testDjango/home.html', {})
 
@@ -47,7 +47,7 @@ def detectionApi(request):
     elif (selectedTreatment == "audio"):
         params[0] = int(params[0])
         params[1] = str(params[1])
-        main(nomChanson, params[0], params[1])
+        transcrire_audio(nomChanson, params[0], params[1])
     else:
         params[0] = str(params[0])
         transposer_midi(nomChanson,params[0])

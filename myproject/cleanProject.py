@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
-# from music21 import *
+from music21 import *
 
 
-def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nombre_armure: int, commencement: int, gamme: int,  pixels_selectionnes=[(10, 291), (36, 251), (51, 293), (65, 293), (92, 242), (114, 243), (124, 292), (139, 289), (168, 247), (179, 293), (198, 292), (222, 247), (244, 252), (256, 297), (274, 289), (299, 254), (311, 294), (329, 291), (357, 257), (376, 253), (384, 291), (403, 286), (432, 248), (442, 289), (462, 290), (488, 257), (508, 259), (518, 291), (538, 292), (562, 254), (574, 288), (592, 292), (617, 254)]):
+def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nombre_armure: int, commencement: int, gamme: int):
     """
     This function processes a video to detect pixel changes and generates a MIDI file.
 
@@ -19,6 +19,7 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
     """
 
     # Set up detection
+    pixels_selectionnes = []
     valeur_de_multiplication = 16
     tolerence = 100
     array_pixel = []
@@ -59,7 +60,7 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
         nonlocal pixels_selectionnes, frame
         if event == cv2.EVENT_LBUTTONDOWN:
             pixels_selectionnes.append((x, y))
-            array_pixel.append(Pixel((x, y), frame[y, x]))
+            array_pixel.append(Pixel((x, y), frame[y-5, x]))
             print(f"Pixel sélectionné : ({x}, {y}) avec valeur initiale : {frame[y, x]}")
             # Dessiner un cercle au pixel sélectionné
             cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
@@ -72,6 +73,7 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
             array_pixel.append(Pixel((x, y), frame[y, x]))
             print(f"Pixel sélectionné : ({x}, {y}) avec valeur initiale : {frame[y, x]}")
 
+    # Prendre les bande qui descende au lieu des touches qui change de couleur pour des partition plus complexe
     def changerY():
         nonlocal pixels_selectionnes
         for i in range(len(pixels_selectionnes)):
@@ -90,14 +92,16 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
                 compteur = 0
                 gamme += 1
 
+    # Prendre en compte que la video peut ne pas etre 100% bien transformer et diminue les fausses detections de changement
     def calculer_diff(valeurPrecedente, valeurActuelle, compteurFrame):
         r1, g1, b1 = valeurPrecedente
         r2, g2, b2 = valeurActuelle
         if (max(r1, r2) - min(r1, r2) > tolerence or max(g1, g2) - min(g1, g2) > tolerence or max(b1, b2) - min(b1,
-                                                                                                                b2) > tolerence) and compteurFrame > frame_cible and compteurFrame < 7479:
+                                                                                                                b2) > tolerence) and compteurFrame > frame_cible:
             return True
         return False
 
+    # Rendre les temps trouver plus pres des vrai valeurs generalement utilisées en music
     def trouver_valeur_proche(valeurEntree):
         # Définir les multiples
         multiple0_25 = 0.25
@@ -172,10 +176,10 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     note_apuuyer_list = []
-    # fluxMusical = stream.Score()
-    # partieMusicale = stream.Part()
-    #
-    # fluxMusical.insert(0, tempo.MetronomeMark(vrai_bpm_chanson))
+    fluxMusical = stream.Score()
+    partieMusicale = stream.Part()
+
+    fluxMusical.insert(0, tempo.MetronomeMark(vrai_bpm_chanson))
 
     while True:
         ret, frame = cap.read()
@@ -229,6 +233,7 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
 
     frame_correctionSpecialiser = frame_correction
 
+    # Traverser le array de changement, calculer la duree tenu de chaque note et les ajouter a la partition
     for pixel in array_pixel:
         note_apuuyer_list.clear()
         compteur = 0
@@ -242,12 +247,12 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
                 note_en_secondes = (note_apuuyer_list[1] - note_apuuyer_list[0]) / taux_fps
                 battement = note_en_secondes * bpm_chanson
                 valeurProche = trouver_valeur_proche(battement)
-                # instanceNote = note.Note(pixel.note)
-                # instanceNote.quarterLength = valeurProche / valeur_de_multiplication
+                instanceNote = note.Note(pixel.note)
+                instanceNote.quarterLength = valeurProche / valeur_de_multiplication
                 decalage_en_secondes = (note_apuuyer_list[0] - frame_correction) / taux_fps
                 decalage_battement_en_secondes = decalage_en_secondes * bpm_chanson
                 valeur_proche_decalage_en_secondes = trouver_valeur_proche(decalage_battement_en_secondes)
-                # fluxMusical.coreInsert(valeur_proche_decalage_en_secondes / valeur_de_multiplication, instanceNote)
+                fluxMusical.coreInsert(valeur_proche_decalage_en_secondes / valeur_de_multiplication, instanceNote)
                 note_apuuyer_list.clear()
 
             compteur += 1
@@ -259,4 +264,4 @@ def process_video_and_generate_midi(nom_chanson: str, vrai_bpm_chanson: int, nom
     print("Pixel sélectionné")
     print(pixels_selectionnes)
 
-    # fluxMusical.write('midi', fp='score1111.mid')
+    fluxMusical.write('midi', fp='score20202.mid')

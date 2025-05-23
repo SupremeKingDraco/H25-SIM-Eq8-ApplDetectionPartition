@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+
+
+<!--Encore une page de test-->
+
+
 {% load static %}
 
 <html lang="fr">
@@ -62,7 +67,7 @@
 
 <script>
   let treatmentSelected = false;
-  let selectedTreatment = ""; // Variable to track the selected treatment
+  let selectedTreatment = ""; // Variable pour traquer le traitement
 
   /**
    * Fonction pour créer des champs de texte dynamiques
@@ -147,11 +152,11 @@
     displayInputData(userInput, dynamicInputValues, selectedTreatment);
 
     // Traite les données si nécessaire
-    processData(userInput, dynamicInputs, selectedTreatment); // Pass the selected treatment
+    processData(userInput, dynamicInputs, selectedTreatment); // Passe le traitement selectionné
   }
 
   /**
-   * Fonction pour afficher les données d'entrée sur la page web
+   * Fonction pour afficher les données d'entrée sur la page web pour débogage
    * @param {string} userInput - Valeur du champ d'entrée statique
    * @param {array} dynamicInputValues - Valeurs des champs d'entrée dynamiques
    * @param {string} selectedTreatment - Type de traitement sélectionné (image ou audio)
@@ -185,7 +190,7 @@
     console.log(parsedDynamicInputs);
 
 
-    // Vous pouvez ajouter ici la logique spécifique au traitement sélectionné
+    // logique spécifique au traitement sélectionné
     if (selectedTreatment === "image") {
       console.log("Traitement de l'image...");
     } else if (selectedTreatment === "audio") {

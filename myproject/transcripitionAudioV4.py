@@ -7,21 +7,33 @@ from music21.tempo import MetronomeMark
 from music21 import *
 import moviepy.editor as mp
 from scipy.signal import find_peaks, butter, filtfilt, medfilt
-
+from pathlib import Path
 # Constantes
 longueurFft = 2048
 recouvrement = 0.5
 
 def extraire_audio(path_video, path_fichier_audio):
-    # Extraire l'audio de la vidéo et l'enregistrer sous forme de fichier MP3
-    video = mp.VideoFileClip(path_video)
-    video.audio.write_audiofile(path_fichier_audio)
+    #Convertir path en string
+    video_str = str(path_video)
+    audio_str = str(path_fichier_audio)
 
-def charger_fichier_audio(nom_fichier, frequence_echantillonnage=44100):
+    #Forcer .mp3 extension s'il le faut
+    if not audio_str.lower().endswith('.mp3'):
+        audio_str = os.path.splitext(audio_str)[0] + '.mp3'
+
+    #Load la vidéo
+    video = mp.VideoFileClip(video_str)
+    video.audio.write_audiofile(
+        audio_str,
+        codec='mp3',
+    )
+    video.close()
+
+def charger_fichier_audio(path_fichier_audio, frequence_echantillonnage=44100):
     # Charger le fichier audio et retourner le signal audio et la fréquence d'échantillonnage
-    if not os.path.exists(nom_fichier):
-        raise FileNotFoundError(f"Erreur : le fichier '{nom_fichier}' n'existe pas.")
-    return librosa.load(nom_fichier, sr=frequence_echantillonnage)
+    if not os.path.exists(path_fichier_audio):
+        raise FileNotFoundError(f"Erreur : le fichier '{path_fichier_audio}' n'existe pas.")
+    return librosa.load(path_fichier_audio, sr=frequence_echantillonnage)
 
 def detecter_tempo(signal_audio, frequence_echantillonnage):
     # Détecter le tempo
@@ -157,8 +169,9 @@ def visualiser_spectrogramme(magnitude_db, frequence_echantillonnage, longueur_s
     plt.show()
 
 
-def main(path_video, seuil_db,path_fichier_audio,):
+def transcrire_audio(path_video, seuil_db,path_fichier_audio):
     # Fonction principale pour exécuter le processus de transcription audio
+
     extraire_audio(path_video, path_fichier_audio)
     signal_audio, frequence_echantillonnage = charger_fichier_audio(path_fichier_audio)
     tempo = detecter_tempo(signal_audio, frequence_echantillonnage)

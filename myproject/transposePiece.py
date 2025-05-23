@@ -11,7 +11,7 @@ def transposer_midi(chemin,hauteur_cible_utilisateur):
     chemin_midi = chemin
 
     # Nouvelle Gamme
-    hauteur_cible = hauteur_cible_utilisateur
+    hauteur_cible = pitch.Pitch( hauteur_cible_utilisateur)
 
     # Charger le fichier MIDI original
     try:
@@ -54,5 +54,3 @@ def transposer_midi(chemin,hauteur_cible_utilisateur):
         print(f"\n MIDI transposé sauvegardé sous le nom '{midi_sortie}'")
     except Exception as e:
         print(f"  Erreur lors de la sauvegarde du fichier : {e}")
-
-
